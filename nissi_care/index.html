@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NissiCare - CDSS</title>
+    <!-- Google Fonts Roboto -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <header>
+        <img src="logo_nissi_care.png" alt="logo con una cruz medica verde y un electrocardiograma en la mitad"
+        width="64px"
+        height="64px">
+        <div class="menu-wrapper">
+            <ul>
+                <li><a href="#">Inicio</a></li>
+                <li><a href="#cefaleas">Cefaleas</a></li>
+            </ul>
+        </div>
+    </header>
+
+    <main>
+        <h1>NissiCare</h1>
+        <img src="logo_nissi_care.png" alt="logo con una cruz medica verde y un electrocardiograma en la mitad"
+        width="200px"
+        height="150px">
+        <p>Sistema de apoyo a la decisión clínica</p>
+        <section id="cefaleas" class="cefaleas">
+
+            <div class="card cefaleas">
+                <form action="submit" method="POST">
+
+                    <div class="form name">
+                        <label for="nombre">Nombre</label>
+                        <input type="text" name="nombre" id="nombre" required>
+
+                        <label for="apellido">Apellidos</label>
+                        <input type="text" name="apellido" id="apellido" required>
+                    </div>
+
+                    <div class="form select">
+                        <label for="dolor">Nivel de dolor</label>
+                        <select id="dolor" name="dolor" required>
+                            <option value="">Selecciona</option>
+                            <option value="1">1</option>
+                            <option value="2">2</option>
+                            <option value="3">3</option>
+                            <option value="4">4</option>
+                            <option value="5">5</option>
+                            <option value="6">6</option>
+                            <option value="7">7</option>
+                            <option value="8">8</option>
+                            <option value="9">9</option>
+                            <option value="10">10</option>
+                        </select>
+                    </div>
+
+                    <button type="submit" class="btn">Siguiente</button>
+                </form>
+            </div>
+
+        </section>
+    </main>
+</body>
+</html>
