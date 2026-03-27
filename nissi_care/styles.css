@@ -18,6 +18,10 @@ body {
     font-family: "Roboto", sans-serif;
 }
 
+.section {
+  background-color: rgb(255, 255, 255)
+}
+
 input, textarea {
   width: 100%;
   padding: 12px;
@@ -43,15 +47,23 @@ button:hover {
 
 input:focus, textarea:focus {
   border-color: #329a9a;
-  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.2);
+  box-shadow: 0 0 0 2px rgba(38, 219, 225, 0.595);
 }
 
 /*HEADER */
 .header {
+    position: sticky;
+    top: 0;
+    z-index: 1000;
     display: flex;
     align-items: center;
     justify-content: space-between;
     gap: 2rem;
+    margin: 1rem 2.9rem;
+    border-radius: 16px;
+    background-color: #ffffff;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.12);
+    
 }
 
 .header__left {
@@ -81,7 +93,7 @@ input:focus, textarea:focus {
 .icon {
   width: 32px;
   height: 32px;
-  background-color: #ddd;
+  background-color: #ffffff;
   border-radius: 50%;
   padding: 0.3rem;
 }
@@ -119,6 +131,10 @@ main{
     align-items: center;
     flex-direction: column;
     gap: 2rem;
+    background: #fff;
+    border-radius: 12px;
+    margin: 0 3rem;
+    z-index: 800;
 }
 
 main h1{
@@ -126,13 +142,23 @@ main h1{
 }
 
 /*HERO SECTION*/
-.hero{
+
+.section {
+     background-color: #ffffff;
+      padding: 4rem;
+      border-radius: 12px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+      margin: 2rem;
+}
+
+
+/* #hero {
     display: flex;
     flex-direction: column;
     align-items: center;
-}
+} */
 
-/*CEFALEA SECTION CDSS*/
+/*HEALTH RECORD SECTION CDSS*/
 .card {
     display: flex;
     align-items: center;
@@ -142,14 +168,20 @@ main h1{
     gap: 2rem;
     background-color: #1b4c4e;
     color: #fff8f8;
-    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+    box-shadow: 0 5px 13px rgba(0,0,0,0.1);
     padding: 1.2rem;
 }
 
-
-
-.form .name{
+.form__name{
+    display: flex;
     padding: 1rem;
-    flex-wrap: wrap;
+    gap: 1rem;
+    
+}
+
+.form__id {
+  display: flex;
+  padding: 2rem;
+
 }
 
