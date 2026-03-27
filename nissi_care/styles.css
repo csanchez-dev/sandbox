@@ -4,6 +4,15 @@
     box-sizing: border-box;
 }
 
+:root {
+  --primary: #2EC4B6;   /* verde clínico */
+  --primary-dark: #1AA79B;
+  --bg: #f8fafc;
+  --border: #e2e8f0;
+  --text: #1e293b;
+  --radius: 12px;
+}
+
 
 .roboto-regular {
     font-family: "Roboto", sans-serif;
@@ -18,10 +27,6 @@ body {
     font-family: "Roboto", sans-serif;
 }
 
-.section {
-  background-color: rgb(255, 255, 255)
-}
-
 input, textarea {
   width: 100%;
   padding: 12px;
@@ -29,7 +34,57 @@ input, textarea {
   border-radius: 8px;
   outline: none;
   font-size: 14px;
+  background: #faf8f4;
 }
+select {
+  appearance: none; /* quita estilo nativo */
+  padding: 12px 14px;
+  font-size: 15px;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  background-color: white;
+  color: var(--text);
+  cursor: pointer;
+  transition: all 0.25s ease;
+
+  /* flecha personalizada */
+  background-image: url("data:image/svg+xml,%3Csvg fill='%2364748b' height='20' viewBox='0 0 20 20' width='20' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M5.25 7.5L10 12.25L14.75 7.5' stroke='%2364748b' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  background-size: 18px;
+}
+
+
+.section__label {
+    font-size: 0.5rem;
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.section__label::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: rgba(27, 94, 97, 0.15);
+}
+/* hover */
+select:hover {
+  border-color: var(--primary);
+}
+
+/* focus (clave para UX médica limpia) */
+select:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(46, 196, 182, 0.2);
+}
+
 
 button {
   background:#329a9a;
@@ -59,11 +114,8 @@ input:focus, textarea:focus {
     align-items: center;
     justify-content: space-between;
     gap: 2rem;
-    margin: 1rem 2.9rem;
-    border-radius: 16px;
     background-color: #ffffff;
-    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.12);
-    
+    box-shadow: 0 12px 40px rgb(0, 0, 0, 0.12); 
 }
 
 .header__left {
@@ -78,7 +130,7 @@ input:focus, textarea:focus {
     align-items: center;
     justify-content: center;
     border-radius: 999px;
-    background-color: #1b4c4e;
+    background-color: rgba(27, 76, 78, 1);
     padding: 1rem;
 }
 
@@ -90,14 +142,18 @@ input:focus, textarea:focus {
     gap: 1.5rem;
 }
 
-.icon {
+.icon__btn {
   width: 32px;
   height: 32px;
-  background-color: #ffffff;
+  background-color: #f6f6f6;
   border-radius: 50%;
   padding: 0.3rem;
+  color: black;
 }
 
+.icon__btn:hover {
+    background-color: #ddd;
+}
 
 header img{ 
     border-radius: 50%;
@@ -131,8 +187,6 @@ main{
     align-items: center;
     flex-direction: column;
     gap: 2rem;
-    background: #fff;
-    border-radius: 12px;
     margin: 0 3rem;
     z-index: 800;
 }
@@ -144,44 +198,54 @@ main h1{
 /*HERO SECTION*/
 
 .section {
-     background-color: #ffffff;
+      display: flex;
+      flex-direction: column;
       padding: 4rem;
       border-radius: 12px;
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
       margin: 2rem;
 }
 
 
-/* #hero {
+ #hero {
     display: flex;
     flex-direction: column;
     align-items: center;
-} */
+} 
 
 /*HEALTH RECORD SECTION CDSS*/
 .card {
+    background: rgba(27, 76, 78, 0.9);
+    color:#e2e8f0;
+    border-radius: 20px;
+    padding: 2.5rem;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04), 0 8px 32px rgba(13, 59, 61, 0.08), 0 0 0 1px rgba(62, 201, 207, 0.1);
     display: flex;
-    align-items: center;
-    justify-content: center;
     flex-direction: column;
-    border-radius: 12px;
-    gap: 2rem;
-    background-color: #1b4c4e;
-    color: #fff8f8;
-    box-shadow: 0 5px 13px rgba(0,0,0,0.1);
-    padding: 1.2rem;
+    gap: 0;
+}
+
+.card__header {
+    font-weight: 900;
+    text-transform: uppercase;
 }
 
 .form__name{
-    display: flex;
+    display: grid;
+    grid-template: reapeat(2,3);
     padding: 1rem;
-    gap: 1rem;
+    gap: 0.5rem;
     
+}
+
+.form__apellido {
+    display: flex;
+    flex-direction: column;
+    padding: 1rem;
+    gap: 0.5rem;
 }
 
 .form__id {
   display: flex;
-  padding: 2rem;
-
+  gap: 1rem;
 }
 
