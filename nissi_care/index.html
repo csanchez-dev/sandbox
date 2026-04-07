@@ -5,17 +5,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>NissiCare - CDSS</title>
 
-    <link rel="icon" href="logo.png">
+    <link rel="icon" href="./public/logo.png">
     <!-- Google Fonts Roboto -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="./styles/styles.css">
 </head>
 <body>
     <header class="header">
         <div class="header__left">
-             <img src="logo.png" alt="logo con una cruz medica verde y un electrocardiograma en la mitad"
+             <img src="./public/logo.png" alt="logo con una cruz medica verde y un electrocardiograma en la mitad"
         width="64px"
         height="64px">
         </div>
@@ -103,19 +103,26 @@
             </div>
         </section>
 
-        <section id="cefaleas" class="section">
+        <!-- CEFALEAS SECTION -->
+            <section id="cefaleas" class="section">
 
-            <div class="section__label">
-                 <h2>Cefaleas</h2>
-            </div>
-           <div class="card">
-            <form action="submit" method="POST">
+                <div class="section__label">
+                     <h2>Cefaleas</h2>
+                </div>
+               <div class="card">
+                <form action="submit" method="POST">
+                    <label for="PAS">Presion Sistólica</label>
+                    <input type="text" name ="PAS" placeholder="PAS">
+                    <span>mmHg</span>
 
-                <button type="submit">Siguiente</button>
-            </form>
-           </div>
-            
-        </section>
+                    <label for="PAD">Presion Distólica</label>
+                    <input type="text" name="PAD" placeholder="PAD"> 
+                    <span>mmHg</span>
+                </form>
+                <button type="button" id="btn__tension">Evaluar tensión</button>
+               </div>
+              
+            </section>
     </main>
 </body>
 </html>
