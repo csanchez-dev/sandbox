@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ecuaciones Diferenciales — Experiencias Interactivas</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Syne:wght@400;700;800;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a12;
+    --panel: #11111f;
+    --border: #1e1e3a;
+    --accent-hooke: #00e5ff;
+    --accent-mas: #ff4ecd;
+    --accent-res: #ff3366;
+    --text: #e8e8f0;
+    --muted: #9b9bc4;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+
+  body {
+    font-family: 'Syne', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+  font-size: 16px; }
+
+  body::before {
+    content:'';
+    position:fixed; inset:0;
+    background-image:
+      linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events:none; z-index:0;
+  }
+
+  .global-nav {
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    background: rgba(10, 10, 18, 0.85);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+    padding: 12px 40px;
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    flex-wrap: wrap;
+    width: 100%;
+  }
+  .global-nav a {
+    color: var(--muted);
+    text-decoration: none;
+    font-family: 'Space Mono', monospace;
+    font-size: 13px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    transition: all 0.3s;
+    padding: 8px 16px;
+    border-radius: 8px;
+    border: 1px solid transparent;
+  }
+  .global-nav a:hover {
+    color: var(--text);
+    background: var(--border);
+  }
+  .global-nav a.active {
+    color: var(--bg);
+    background: #fff;
+    box-shadow: 0 0 15px rgba(255,255,255,0.5);
+  }
+
+  .hero {
+    position: relative;
+    z-index: 10;
+    text-align: center;
+    padding: 60px 24px 30px;
+    max-width:60ch;
+  }
+
+  .hero .tag {
+    display: inline-block;
+    font-family: 'Space Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 3px;
+    color: var(--text);
+    text-transform: uppercase;
+    border: 1px solid var(--border);
+    background: rgba(255,255,255,0.05);
+    border-radius: 20px;
+    padding: 6px  24px;
+    margin-bottom: 24px;
+  }
+
+  .hero h1 {
+    font-size: clamp(32px, 5vw, 48px);
+    font-weight: 900;
+    line-height: 1.1;
+    margin-bottom: 24px;
+    background: linear-gradient(135deg, #fff, #999);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .hero p {
+    font-size: 16px;
+    color: var(--muted);
+    font-family: 'Space Mono', monospace;
+    line-height:1.6;
+    margin-bottom: 40px;
+  }
+
+  .modules-grid {
+    position: relative;
+    z-index: 10;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 32px;
+    max-width:900px;
+    width: 100%;
+    padding: 0 24px 80px;
+  }
+
+  .module-card {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 32px;
+    text-align: left;
+    text-decoration: none;
+    transition: all 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    min-height:240px;
+  }
+
+  .module-card::before {
+    content:'';
+    position: absolute;
+    top: 0; left: 0; right: 0; height: 4px;
+    background: var(--c);
+    transition: height 0.3s;
+  }
+
+  .module-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+    border-color: var(--c);
+  }
+  
+  .module-card:hover::before {
+    height: 100%;
+    opacity: 0.05;
+  }
+
+  .mod-num {
+    font-family: 'Space Mono', monospace;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    color: var(--c);
+    margin-bottom: 16px;
+    text-transform: uppercase;
+  }
+
+  .mod-title {
+    font-size: 28px;
+    font-weight: 800;
+    color: var(--text);
+    margin-bottom: 12px;
+    line-height: 1.2;
+  }
+
+  .mod-desc {
+    font-family: 'Space Mono', monospace;
+    font-size: 13px;
+    color: var(--muted);
+    line-height: 1.6;
+    margin-bottom: 32px;
+  }
+
+  .mod-btn {
+    align-self: flex-start;
+    padding:  8px 24px;
+    border-radius: 8px;
+    font-size: 12px;
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    background: transparent;
+    color: var(--c);
+    border: 1px solid var(--c);
+    transition: all 0.3s;
+  }
+
+  .module-card:hover .mod-btn {
+    background: var(--c);
+    color: var(--bg);
+    box-shadow: 0 0 15px var(--c);
+  }
+  
+</style>
+</head>
+<body>
+
+<nav class="global-nav">
+  <a href="index.html" class="active">🏠 Inicio</a>
+  <a href="hooke_law_experience.html">1. Ley de Hooke</a>
+  <a href="mas_experience.html">2. MAS</a>
+  <a href="resonancia_experience.html">3. Resonancia</a>
+</nav>
+
+<header class="hero">
+  <div class="tag">Simulador Interactivo</div>
+  <h1>Ecuaciones Diferenciales<br>en Acción</h1>
+  <p>Explora cómo las matemáticas modelan la realidad. A través de este paquete de experiencias interactivas, comprenderás intuitivamente las ecuaciones diferenciales de segundo orden que gobiernan el mundo físico, desde un simple resorte hasta catástrofes estructurales por resonancia.</p>
+</header>
+
+<main class="modules-grid">
+  <a href="hooke_law_experience.html" class="module-card" style="--c: var(--accent-hooke);">
+    <div>
+      <div class="mod-num">Módulo 01</div>
+      <div class="mod-title">Ley de Hooke</div>
+      <div class="mod-desc">La fuerza que obedece una ecuación diferencial. Descubre la constante de rigidez y prepárate para los osciladores.</div>
+    </div>
+    <div class="mod-btn">Iniciar Módulo →</div>
+  </a>
+
+  <a href="mas_experience.html" class="module-card" style="--c: var(--accent-mas);">
+    <div>
+      <div class="mod-num">Módulo 02</div>
+      <div class="mod-title">Movimiento Armónico Simple</div>
+      <div class="mod-desc">Domina la cinemática del MAS. Analiza posición, velocidad y aceleración en el tiempo.</div>
+    </div>
+    <div class="mod-btn">Iniciar Módulo →</div>
+  </a>
+
+  <a href="resonancia_experience.html" class="module-card" style="--c: var(--accent-res);">
+    <div>
+      <div class="mod-num">Módulo 03</div>
+      <div class="mod-title">Resonancia</div>
+      <div class="mod-desc">Fuerzas externas y frecuencias naturales. ¿Qué sucede cuando se sincronizan? El fenómeno más dramático.</div>
+    </div>
+    <div class="mod-btn">Iniciar Módulo →</div>
+  </a>
+</main>
+
+</body>
+</html>

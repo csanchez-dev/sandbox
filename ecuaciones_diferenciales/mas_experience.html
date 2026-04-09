@@ -1,0 +1,1485 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MAS — Movimiento Armónico Simple · Módulo 2</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Syne:wght@400;700;800;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #080d12;
+    --panel: #0d1520;
+    --border: #1a2535;
+    --accent: #f0b429;
+    --accent2: #00d4aa;
+    --accent3: #ff6b6b;
+    --accent4: #7c63ff;
+    --text: #e8edf4;
+    --muted: #8ea4c2;
+    --gold: #f0b429;
+    --card: #0d1824;
+    --glow-gold: 0 0 24px rgba(240,180,41,0.35);
+    --glow-teal: 0 0 24px rgba(0,212,170,0.35);
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+
+  body {
+    font-family: 'Syne', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+  font-size: 16px; }
+
+  /* ─── ANIMATED WAVE BACKGROUND ─── */
+  body::before {
+    content:'';
+    position:fixed; inset:0;
+    background:
+      radial-gradient(ellipse 80% 40% at 20% 80%, rgba(240,180,41,0.04) 0%, transparent 60%),
+      radial-gradient(ellipse 60% 50% at 80% 20%, rgba(0,212,170,0.04) 0%, transparent 60%);
+    pointer-events:none; z-index:0;
+  }
+  body::after {
+    content:'';
+    position:fixed; inset:0;
+    background-image:
+      linear-gradient(rgba(240,180,41,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(240,180,41,0.03) 1px, transparent 1px);
+    background-size: 48px 48px;
+    pointer-events:none; z-index:0;
+  }
+
+  /* ─── HEADER ─── */
+.top-bar {
+    position: relative; z-index: 10;
+    padding: 24px 40px;
+    display: none !important; align-items: center; justify-content: space-between;
+    border-bottom: 1px solid var(--border);
+    background: rgba(12, 6, 8, 0.94);
+    backdrop-filter: blur(14px);
+  }
+  .logo { display:flex;   align-items:center; gap: 16px; }
+  .logo-icon {
+    width:44px; height:44px;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    border-radius:10px;
+    display:flex; align-items:center; justify-content:center;
+    font-size:22px; box-shadow: var(--glow-gold);
+  }
+  .logo-meta { font-size:11px; color:var(--muted); font-family:'Space Mono',monospace; letter-spacing:1px; }
+  .logo h1 { font-size:20px; font-weight:900; color:var(--accent); letter-spacing:-0.5px; }
+  .hud { display:flex; gap:16px; align-items:center; }
+  .hud-stat {
+    text-align:center; background:var(--card);
+    border:1px solid var(--border); border-radius:10px; padding:8px  16px;
+  }
+  .hud-stat .val { font-size:22px; font-weight:900; color:var(--accent); font-family:'Space Mono',monospace; }
+  .hud-stat .lbl { font-size:10px; color:var(--muted); letter-spacing:2px; text-transform:uppercase; }
+  .module-nav { display:flex; gap:8px; }
+  .mod-btn {
+    padding:6px  16px; border-radius:6px; font-size:11px; font-weight:700;
+    letter-spacing:1px; text-transform:uppercase; cursor:pointer;
+    font-family:'Space Mono',monospace; border:1px solid var(--border);
+    background:transparent; color:var(--muted); transition:0.2s;
+  }
+  .mod-btn:hover { color:var(--text); border-color:var(--muted); }
+  .mod-btn.current { background:var(--accent); color:#000; border-color:var(--accent); }
+
+  /* ─── MAIN ─── */
+  main {
+    position:relative; z-index:5;
+    max-width:1320px; margin:0 auto;
+    padding: 32px 24px  96px;
+  }
+
+  /* ─── SECTION TITLE ─── */
+  .section-title { text-align:center; margin-bottom:32px; }
+  .section-title .tag {
+    display:inline-block;
+    font-family:'Space Mono',monospace; font-size:11px; letter-spacing:3px;
+    color:var(--accent); text-transform:uppercase;
+    border:1px solid rgba(240,180,41,0.4);
+    border-radius:20px; padding:5px  16px; margin-bottom: 16px;
+  }
+  .section-title h2 {
+    font-size:clamp(34px,5.5vw,58px); font-weight:900; line-height:1.0;
+  }
+  .section-title h2 span { color:var(--accent); }
+  .section-title h2 em { color:var(--accent2); font-style:normal; }
+  .section-title p {
+    margin-top: 16px; font-size:16px; color:var(--muted);
+    max-width:580px; margin-inline:auto;
+    font-family:'Space Mono',monospace; line-height:1.6;
+  }
+
+  /* ─── STEP BAR ─── */
+  .steps-bar {
+    display:flex; margin-bottom:32px; position:relative;
+  }
+  .steps-bar::before {
+    content:''; position:absolute; top:20px; left:0; right:0;
+    height:2px; background:var(--border); z-index:0;
+  }
+  .step-item {
+    flex:1; display:flex; flex-direction:column; align-items:center; gap:8px;
+    position:relative; z-index:1; cursor:pointer;
+  }
+  .step-circle {
+    width:40px; height:40px; border-radius:50%;
+    border:2px solid var(--border); background:var(--bg);
+    display:flex; align-items:center; justify-content:center;
+    font-size:16px; font-weight:700; transition:all 0.3s;
+    font-family:'Space Mono',monospace;
+  }
+  .step-item.done   .step-circle { background:var(--accent2); border-color:var(--accent2); color:#000; }
+  .step-item.active .step-circle { background:var(--accent); border-color:var(--accent); color:#000; box-shadow:var(--glow-gold); }
+  .step-label { font-size:10px; color:var(--muted); letter-spacing:1px; text-transform:uppercase; text-align:center; }
+  .step-item.active .step-label { color:var(--accent); }
+  .step-item.done   .step-label { color:var(--accent2); }
+
+  /* ─── PANEL ─── */
+  .panel { display:none; animation: fadeUp 0.45s ease; }
+  .panel.active { display:block; }
+  @keyframes fadeUp {
+    from { opacity:0; transform:translateY(18px); }
+    to   { opacity:1; transform:translateY(0); }
+  }
+
+  /* ─── CARDS ─── */
+  .card {
+    background:var(--card); border:1px solid var(--border);
+    border-radius:18px; padding: 32px;
+  }
+  .card-title {
+    font-size:12px; font-weight:700; letter-spacing:3px; text-transform:uppercase;
+    color:var(--accent); margin-bottom: 16px; font-family:'Space Mono',monospace;
+  }
+
+  /* ─── EQ BOX ─── */
+  .eq-box {
+    border-radius:14px; padding: 16px 24px; text-align:center; margin:16px 0;
+  }
+  .eq-box.gold  { background:linear-gradient(135deg,rgba(240,180,41,0.1),rgba(240,180,41,0.04)); border:1px solid rgba(240,180,41,0.25); }
+  .eq-box.teal  { background:linear-gradient(135deg,rgba(0,212,170,0.1),rgba(0,212,170,0.04)); border:1px solid rgba(0,212,170,0.25); }
+  .eq-box.red   { background:linear-gradient(135deg,rgba(255,107,107,0.1),rgba(255,107,107,0.04)); border:1px solid rgba(255,107,107,0.25); }
+  .eq-box.purple{ background:linear-gradient(135deg,rgba(124,99,255,0.1),rgba(124,99,255,0.04)); border:1px solid rgba(124,99,255,0.25); }
+  .eq-box .eq   { font-size:clamp(16px,2.5vw,26px); font-family:'Space Mono',monospace; letter-spacing:1px; }
+  .eq-box.gold .eq  { color:var(--accent); }
+  .eq-box.teal .eq  { color:var(--accent2); }
+  .eq-box.red  .eq  { color:var(--accent3); }
+  .eq-box.purple .eq{ color:var(--accent4); }
+  .eq-box .eq-sub { font-size:11px; color:var(--muted); margin-top:6px; font-family:'Space Mono',monospace; }
+
+  /* ─── GRIDS ─── */
+  .grid2 { display:grid; grid-template-columns:1fr 1fr; gap:24px; }
+  .grid3 { display:grid; grid-template-columns:1fr 1fr 1fr; gap: 16px; }
+  .grid4 { display:grid; grid-template-columns:repeat(4,1fr); gap: 16px; }
+  @media(max-width:900px) { .grid2,.grid3,.grid4 { grid-template-columns:1fr; } }
+  @media(max-width:1100px) { .grid4 { grid-template-columns:repeat(2,1fr); } }
+
+  /* ─── CONCEPT ITEMS ─── */
+  .concept-item {
+    display:flex; gap: 16px; align-items:flex-start;
+    padding: 16px; border-radius:12px;
+    border:1px solid var(--border);
+    background:rgba(255,255,255,0.015); margin-bottom:10px;
+  }
+  .ci-icon { font-size:22px; flex-shrink:0; margin-top:2px; }
+  .ci-text h4 { font-size:13px; font-weight:800; margin-bottom:4px; }
+  .ci-text p  { font-size:11px; color:var(--muted); font-family:'Space Mono',monospace; line-height:1.6; }
+  .ci-text p span { color:var(--accent); }
+  .ci-text p em { color:var(--accent2); font-style:normal; }
+
+  /* ─── SLIDERS ─── */
+  .slider-group { margin: 16px 0; }
+  .slider-group label {
+    display:flex; justify-content:space-between; align-items:center;
+    font-size:11px; font-family:'Space Mono',monospace; color:var(--muted); margin-bottom:6px;
+  }
+  .slider-group label span { color:var(--accent); font-weight:700; font-size:13px; }
+  input[type=range] {
+    width:100%; height:5px; border-radius:3px;
+    background:var(--border); appearance:none; -webkit-appearance:none;
+    outline:none; cursor:pointer;
+  }
+  input[type=range]::-webkit-slider-thumb {
+    width:16px; height:16px; border-radius:50%;
+    background:var(--accent); -webkit-appearance:none;
+    border:2px solid var(--bg); cursor:pointer;
+  }
+
+  /* ─── BUTTONS ─── */
+  .btn { padding: 16px 32px; border-radius:8px; font-size: 15px; font-family:'Syne',sans-serif; font-weight:800; letter-spacing:1.5px; border:none; cursor:pointer; transition:all 0.2s; text-transform:uppercase; }
+  .btn-primary { background:var(--accent); color:#000; }
+  .btn-primary:hover { filter:brightness(1.1); transform:translateY(-2px); box-shadow:var(--glow-gold); }
+  .btn-teal { background:var(--accent2); color:#000; }
+  .btn-teal:hover { filter:brightness(1.1); transform:translateY(-2px); box-shadow:var(--glow-teal); }
+  .btn-secondary { background:transparent; color:var(--accent); border:1px solid var(--accent); }
+  .btn-secondary:hover { background:rgba(240,180,41,0.1); }
+  .btn-ghost { background:transparent; color:var(--muted); border:1px solid var(--border); }
+  .btn-ghost:hover { color:var(--text); border-color:var(--muted); }
+  .btn-row { display:flex; gap:12px; flex-wrap:wrap; margin-top:24px; }
+
+  /* ─── INFO CHIP ─── */
+  .info-chip {
+    background:var(--bg); border:1px solid var(--border);
+    border-radius:10px; padding:12px; text-align:center;
+  }
+  .ic-val { font-size:20px; font-weight:900; font-family:'Space Mono',monospace; }
+  .ic-lbl { font-size:10px; color:var(--muted); letter-spacing:1px; text-transform:uppercase; margin-top:2px; }
+
+  /* ─── CANVAS ─── */
+  canvas { display:block; border-radius:12px; background:var(--bg); border:1px solid var(--border); }
+
+  /* ─── PHASOR ─── */
+  #phasor-canvas { cursor:grab; }
+
+  /* ─── QUIZ ─── */
+  .quiz-progress { font-size:11px; color:var(--muted); font-family:'Space Mono',monospace; margin-bottom: 16px; }
+  .quiz-question { font-size:16px; font-weight:700; margin-bottom:22px; line-height:1.6; }
+  .quiz-options  { display:grid; gap: 8px; }
+  .quiz-opt {
+    padding:13px  16px; border-radius: 8px;
+    border:1px solid var(--border); background:var(--card);
+    cursor:pointer; font-size:13px; font-family:'Space Mono',monospace;
+    transition:all 0.2s; text-align:left; color:var(--text);
+  }
+  .quiz-opt:hover   { border-color:var(--accent); background:rgba(240,180,41,0.08); }
+  .quiz-opt.correct { border-color:var(--accent2); background:rgba(0,212,170,0.12); color:var(--accent2); }
+  .quiz-opt.wrong   { border-color:var(--accent3); background:rgba(255,107,107,0.12); color:var(--accent3); }
+  .quiz-opt.disabled{ pointer-events:none; }
+  .quiz-feedback { margin-top: 16px; padding: 16px; border-radius: 8px; font-family:'Space Mono',monospace; font-size:12px; line-height:1.6; display:none; }
+  .quiz-feedback.ok  { display:block; background:rgba(0,212,170,0.08); border:1px solid var(--accent2); color:var(--accent2); }
+  .quiz-feedback.err { display:block; background:rgba(255,107,107,0.08); border:1px solid var(--accent3); color:var(--accent3); }
+
+  /* ─── METER ─── */
+  .meter-wrap { margin: 8px 0; }
+  .meter-label { display:flex; justify-content:space-between; font-size:11px; font-family:'Space Mono',monospace; color:var(--muted); margin-bottom:5px; }
+  .meter-bar { height:7px; border-radius:4px; background:var(--border); overflow:hidden; }
+  .meter-fill { height:100%; border-radius:4px; transition:width 0.6s cubic-bezier(0.4,0,0.2,1); }
+
+  /* ─── BADGE ─── */
+  .badge { display:flex; flex-direction:column; align-items:center; gap:8px; padding:16px  16px; border-radius: 16px; border:1px solid var(--border); background:var(--card); min-width:90px; text-align:center; transition:all 0.3s; }
+  .badge.earned { border-color:var(--gold); box-shadow:0 0 20px rgba(240,180,41,0.2); }
+  .badge .badge-icon { font-size:30px; filter:grayscale(1); transition:0.3s; }
+  .badge.earned .badge-icon { filter:none; }
+  .badge .badge-name { font-size:10px; font-weight:700; letter-spacing:1px; text-transform:uppercase; color:var(--muted); }
+  .badge.earned .badge-name { color:var(--gold); }
+  .badge-grid { display:flex; gap:12px; flex-wrap:wrap; }
+
+  /* ─── SCORE RING ─── */
+  .score-ring {
+    width:150px; height:150px; border-radius:50%;
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    background:conic-gradient(var(--accent) 0%, var(--accent) var(--pct,0%), var(--border) var(--pct,0%));
+    position:relative; margin:0 auto 24px;
+    box-shadow:0 0 50px rgba(240,180,41,0.25);
+    transition: --pct 1s;
+  }
+  .score-ring::before { content:''; position:absolute; inset:12px; border-radius:50%; background:var(--card); }
+  .score-ring .sv { position:relative; z-index:1; font-size:34px; font-weight:900; color:var(--accent); font-family:'Space Mono',monospace; }
+  .score-ring .sl { position:relative; z-index:1; font-size:10px; color:var(--muted); letter-spacing:2px; text-transform:uppercase; }
+
+  /* ─── TOAST ─── */
+  #toast {
+    position:fixed; bottom:32px; left:50%;
+    transform:translateX(-50%) translateY(100px);
+    background:var(--accent); color:#000;
+    padding:12px  32px; border-radius:30px;
+    font-weight:800; font-size:13px; z-index:1000;
+    transition:transform 0.4s cubic-bezier(0.34,1.56,0.64,1);
+    white-space:nowrap; pointer-events:none;
+  }
+  #toast.show { transform:translateX(-50%) translateY(0); }
+
+  /* ─── CHALLENGE ─── */
+  .num-chal input[type=number] {
+    background:var(--bg); border:1px solid var(--border); border-radius:8px;
+    padding: 8px 16px; font-family:'Space Mono',monospace; font-size:15px;
+    color:var(--text); width:100%; margin:8px 0; outline:none; transition:border-color 0.2s;
+  }
+  .num-chal input:focus { border-color:var(--accent); }
+
+  /* ─── PHASE WHEEL interactive ─── */
+  .phase-info {
+    display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin-top:16px;
+  }
+
+  /* ─── NEXT PREVIEW ─── */
+  .next-preview {
+    display:flex; gap: 16px; align-items:center;
+    padding: 24px; border-radius: 16px;
+    border:1px solid var(--border); background:var(--card);
+    cursor:pointer; transition:all 0.2s;
+  }
+  .next-preview:hover { border-color:var(--accent3); box-shadow:0 0 20px rgba(255,107,107,0.1); }
+  .next-icon { font-size:38px; flex-shrink:0; }
+  .next-text h3 { font-size:15px; font-weight:800; margin-bottom:4px; }
+  .next-text p  { font-size:11px; color:var(--muted); font-family:'Space Mono',monospace; }
+  .next-arrow { margin-left:auto; font-size:22px; color:var(--accent3); }
+
+  /* highlight helpers */
+  .hg  { color:var(--accent); }
+  .hg2 { color:var(--accent2); }
+  .hg3 { color:var(--accent3); }
+  .hg4 { color:var(--accent4); }
+
+  /* ─── MODE TOGGLE ─── */
+  .toggle-row { display:flex; gap:8px; margin-bottom:16px; flex-wrap:wrap; }
+  .toggle-btn {
+    padding:7px 16px; border-radius: 24px; font-size:11px; font-weight:700;
+    letter-spacing:1px; text-transform:uppercase; cursor:pointer;
+    font-family:'Space Mono',monospace; border:1px solid var(--border);
+    background:transparent; color:var(--muted); transition:0.2s;
+  }
+  .toggle-btn.active { background:var(--accent); color:#000; border-color:var(--accent); }
+
+  /* ─── COMPARE TABLE ─── */
+  .compare-table { width:100%; border-collapse:collapse; font-family:'Space Mono',monospace; font-size:12px; }
+  .compare-table th { padding: 8px  16px; text-align:left; background:rgba(240,180,41,0.08); color:var(--accent); font-size:11px; letter-spacing:2px; text-transform:uppercase; border-bottom:1px solid var(--border); }
+  .compare-table td { padding: 8px  16px; border-bottom:1px solid var(--border); color:var(--text); vertical-align:top; line-height:1.6; }
+  .compare-table tr:last-child td { border-bottom:none; }
+  .compare-table td:first-child { color:var(--accent2); font-weight:700; }
+  /* ─── GLOBAL NAVBAR ─── */
+  .global-nav {
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    background: rgba(10, 10, 18, 0.85);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+    padding: 12px 40px;
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    flex-wrap: wrap;
+  }
+  .global-nav a {
+    color: var(--muted);
+    text-decoration: none;
+    font-family: 'Space Mono', monospace;
+    font-size: 13px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    transition: all 0.3s;
+    padding: 8px 16px;
+    border-radius: 8px;
+    border: 1px solid transparent;
+  }
+  .global-nav a:hover {
+    color: var(--text);
+    background: var(--border);
+  }
+  .global-nav a.active {
+    color: var(--bg);
+    background: var(--accent);
+    box-shadow: 0 0 15px var(--accent);
+  }
+
+  .btn:active { transform: scale(0.96) !important; filter: brightness(0.9); box-shadow: none !important; transition: all 0.1s; }
+</style>
+</head>
+<body>
+
+<!-- GLOBAL NAVBAR -->
+<nav class="global-nav">
+  <a href="index.html">🏠 Inicio</a>
+  <a href="hooke_law_experience.html">1. Ley de Hooke</a>
+  <a href="mas_experience.html" class="active">2. MAS</a>
+  <a href="resonancia_experience.html">3. Resonancia</a>
+</nav>
+
+<div id="toast">🏆 ¡Insignia desbloqueada!</div>
+
+<!-- ─── HEADER ─── -->
+<header class="top-bar">
+  <div class="logo">
+    <div class="logo-icon">〰️</div>
+    <div>
+      <div class="logo-meta">ECUACIONES DIFERENCIALES · MÓDULO 2/3</div>
+      <h1>MAS — MOVIMIENTO ARMÓNICO SIMPLE</h1>
+    </div>
+  </div>
+  <div class="hud">
+    <div class="hud-stat">
+      <div class="val" id="score-display">0</div>
+      <div class="lbl">XP</div>
+    </div>
+    <div class="hud-stat">
+      <div class="val" id="stars-display" style="font-size:18px;">☆☆☆</div>
+      <div class="lbl">Estrellas</div>
+    </div>
+    <div class="hud-stat">
+      <div class="val" id="streak-display">0🔥</div>
+      <div class="lbl">Racha</div>
+    </div>
+  </div>
+  <div class="module-nav">
+    <button class="mod-btn" onclick="alert('Módulo 1: Ley de Hooke')">M1</button>
+    <button class="mod-btn current">M2</button>
+    <button class="mod-btn" onclick="alert('Módulo 3: Resonancia — próximamente')">M3</button>
+  </div>
+</header>
+
+<main>
+  <!-- TITLE -->
+  <header class="section-title">
+    <div class="tag">Módulo 02 · MAS</div>
+    <h2>La Danza <span>Perfecta</span> del<br><em>Oscilador</em></h2>
+    <p>Desde la ED de Hooke hasta x(t) = A·cos(ω₀t + φ). Comprende amplitud, fase y condiciones iniciales — la sinfonía de las ecuaciones diferenciales.</p>
+  </header>
+
+  <!-- STEPS -->
+  <nav class="steps-bar" id="steps-bar">
+    <div class="step-item active" data-step="0"><div class="step-circle">1</div><div class="step-label">Teoría</div></div>
+    <div class="step-item" data-step="1"><div class="step-circle">2</div><div class="step-label">Fasorial</div></div>
+    <div class="step-item" data-step="2"><div class="step-circle">3</div><div class="step-label">Simular</div></div>
+    <div class="step-item" data-step="3"><div class="step-circle">4</div><div class="step-label">Quiz</div></div>
+    <div class="step-item" data-step="4"><div class="step-circle">5</div><div class="step-label">Desafío</div></div>
+    <div class="step-item" data-step="5"><div class="step-circle">6</div><div class="step-label">Logros</div></div>
+  </nav>
+
+  <!-- ════════════ PANEL 0: TEORÍA ════════════ -->
+  <section class="panel active" id="panel-0">
+    <div class="grid2">
+      <article class="card">
+        <div class="card-title">📡 Del Resorte al MAS</div>
+        <figure class="concept-item">
+          <span class="ci-icon">🔗</span>
+          <div class="ci-text">
+            <h4>Conexión con Hooke</h4>
+            <p>Partimos de la ED del Módulo 1: <span>x'' + ω₀²·x = 0</span> donde ω₀ = √(k/m). Esta es la ED que define el MAS.</p>
+          </div>
+        </figure>
+        <figure class="concept-item">
+          <span class="ci-icon">🌊</span>
+          <div class="ci-text">
+            <h4>Solución General</h4>
+            <p>La solución completa de la ED involucra <span>dos constantes libres</span> (A, φ) determinadas por condiciones iniciales: posición y velocidad en t=0.</p>
+          </div>
+        </figure>
+        <figure class="concept-item">
+          <span class="ci-icon">📐</span>
+          <div class="ci-text">
+            <h4>Tres Formas Equivalentes</h4>
+            <p>
+              <span>① x = A·cos(ω₀t + φ)</span><br>
+              <em>② x = C·cos(ω₀t) + D·sin(ω₀t)</em><br>
+              <span style="color:var(--accent3)">③ x = Re[A·e^{i(ω₀t+φ)}]</span>
+            </p>
+          </div>
+        </figure>
+        <figure class="concept-item">
+          <span class="ci-icon">⚙️</span>
+          <div class="ci-text">
+            <h4>Condiciones Iniciales</h4>
+            <p>Con <span>x(0) = x₀</span> y <span>x'(0) = v₀</span>, las constantes quedan determinadas: <em>A = √(x₀² + (v₀/ω₀)²)</em> y <em>tan(φ) = −v₀/(ω₀·x₀)</em></p>
+          </div>
+        </figure>
+      </article>
+
+      <article class="card">
+        <div class="card-title">📐 Las Ecuaciones Clave</div>
+        <aside class="eq-box gold">
+          <div class="eq">x'' + ω₀²·x = 0</div>
+          <div class="eq-sub">ED del oscilador armónico (Hooke → MAS)</div>
+        </aside>
+        <aside class="eq-box teal">
+          <div class="eq">x(t) = A·cos(ω₀t + φ)</div>
+          <div class="eq-sub">Solución general — forma amplitud/fase</div>
+        </aside>
+        <aside class="eq-box purple">
+          <div class="eq">A = √(x₀² + v₀²/ω₀²)</div>
+          <div class="eq-sub">Amplitud desde condiciones iniciales</div>
+        </aside>
+        <aside class="eq-box red">
+          <div class="eq">T = 2π/ω₀ = 2π√(m/k)</div>
+          <div class="eq-sub">Período — independiente de la amplitud</div>
+        </aside>
+        <div style="margin-top:16px; padding: 16px; background:rgba(240,180,41,0.06); border-radius: 8px;">
+          <div style="font-size:11px; color:var(--muted); font-family:'Space Mono',monospace; line-height:1.6;">
+            🔑 <span class="hg">Isocrónismo:</span> El período T = 2π√(m/k) <strong>NO depende de la amplitud A</strong>. Un péndulo oscila al mismo ritmo sin importar qué tan alto lo empujes — esto revolucionó la relojería en el siglo XVII.
+          </div>
+        </div>
+      </article>
+    </div>
+
+    <!-- Tabla comparativa -->
+    <article class="card" style="margin-top:24px;">
+      <div class="card-title">🗂️ Anatomía del MAS — Cada Parámetro</div>
+      <table class="compare-table">
+        <thead>
+          <tr>
+            <th>Parámetro</th>
+            <th>Símbolo</th>
+            <th>Significado Físico</th>
+            <th>Relación con la ED</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Amplitud</td>
+            <td><span class="hg">A</span></td>
+            <td>Desplazamiento máximo desde equilibrio</td>
+            <td>Determinada por condiciones iniciales; NO aparece en la ED</td>
+          </tr>
+          <tr>
+            <td>Frecuencia angular</td>
+            <td><span class="hg2">ω₀</span></td>
+            <td>Velocidad de oscilación (rad/s)</td>
+            <td>ω₀² es el coeficiente de x en la ED: x'' + <em>ω₀²</em>·x = 0</td>
+          </tr>
+          <tr>
+            <td>Fase inicial</td>
+            <td><span class="hg3">φ</span></td>
+            <td>"Punto de arranque" en el ciclo</td>
+            <td>Determinada por condiciones iniciales; desplaza la onda horizontalmente</td>
+          </tr>
+          <tr>
+            <td>Período</td>
+            <td><span class="hg4">T</span></td>
+            <td>Tiempo en completar un ciclo completo</td>
+            <td>T = 2π/ω₀; depende solo de k y m, no de A</td>
+          </tr>
+        </tbody>
+      </table>
+    </article>
+
+    <div class="btn-row">
+      <button class="btn btn-primary" onclick="goPanel(1)">Siguiente: Diagrama Fasorial →</button>
+    </div>
+  </section>
+
+  <!-- ════════════ PANEL 1: FASORIAL ════════════ -->
+  <section class="panel" id="panel-1">
+    <div class="grid2">
+      <article class="card">
+        <div class="card-title">🌀 Diagrama Fasorial Interactivo</div>
+        <canvas id="phasor-canvas" width="420" height="360" style="width:100%;cursor:grab;"></canvas>
+        <p style="font-size:11px;color:var(--muted);text-align:center;margin-top:10px;font-family:'Space Mono',monospace;">
+          ↔ Arrastra el vector para cambiar amplitud y fase
+        </p>
+        <div class="phase-info">
+          <div class="info-chip">
+            <div class="ic-val hg" id="amp-display">1.00</div>
+            <div class="ic-lbl">A (m)</div>
+          </div>
+          <div class="info-chip">
+            <div class="ic-val hg2" id="phi-display">0.00°</div>
+            <div class="ic-lbl">φ (grados)</div>
+          </div>
+          <div class="info-chip">
+            <div class="ic-val hg3" id="x0-display">1.00</div>
+            <div class="ic-lbl">x(0)</div>
+          </div>
+        </div>
+      </article>
+
+      <article class="card">
+        <div class="card-title">📈 Señal x(t) = A·cos(ω₀t + φ)</div>
+        <canvas id="wave-canvas" width="420" height="200" style="width:100%;"></canvas>
+        <div style="margin-top:20px;">
+          <div class="slider-group">
+            <label>ω₀ (rad/s) <span id="w0-val">3.00</span></label>
+            <input type="range" id="w0-slider" min="1" max="8" step="0.1" value="3" oninput="updateW0(this.value)">
+          </div>
+        </div>
+        <figure class="concept-item" style="margin-top:16px;">
+          <span class="ci-icon">💡</span>
+          <div class="ci-text">
+            <h4>El fasor rota</h4>
+            <p>El vector de longitud <span>A</span> gira a velocidad angular <em>ω₀</em>. La proyección sobre el eje horizontal es exactamente <span>x(t) = A·cos(ω₀t + φ)</span>. ¡El círculo genera la onda!</p>
+          </div>
+        </figure>
+
+        <div class="btn-row" style="margin-top:16px;">
+          <button class="btn btn-secondary" id="anim-btn" onclick="toggleAnim()">▶ Animar Fasor</button>
+          <button class="btn btn-teal" onclick="awardPhasorBadge()">Entendido ✓</button>
+        </div>
+      </article>
+    </div>
+
+    <div class="btn-row">
+      <button class="btn btn-ghost" onclick="goPanel(0)">← Teoría</button>
+      <button class="btn btn-primary" onclick="goPanel(2)">Siguiente: Simulador →</button>
+    </div>
+  </section>
+
+  <!-- ════════════ PANEL 2: SIMULADOR ════════════ -->
+  <section class="panel" id="panel-2">
+    <div class="grid2">
+      <article class="card">
+        <div class="card-title">🎮 Simulador MAS Completo</div>
+        <canvas id="mas-canvas" height="360" style="width:100%;cursor:ns-resize;"></canvas>
+        <div class="grid4" style="margin-top: 16px;">
+          <div class="info-chip"><div class="ic-val hg" id="mas-x">0.00</div><div class="ic-lbl">x(t) m</div></div>
+          <div class="info-chip"><div class="ic-val hg2" id="mas-v">0.00</div><div class="ic-lbl">v(t) m/s</div></div>
+          <div class="info-chip"><div class="ic-val hg3" id="mas-a">0.00</div><div class="ic-lbl">a(t) m/s²</div></div>
+          <div class="info-chip"><div class="ic-val hg4" id="mas-t">0.00</div><div class="ic-lbl">t (s)</div></div>
+        </div>
+      </article>
+
+      <article class="card">
+        <div class="card-title">🎚️ Condiciones Iniciales y Parámetros</div>
+        <div class="slider-group">
+          <label>Posición inicial x₀ (m) <span id="x0-sl">0.80</span></label>
+          <input type="range" id="x0-slider" min="-1" max="1" step="0.01" value="0.8" oninput="updateIC()">
+        </div>
+        <div class="slider-group">
+          <label>Velocidad inicial v₀ (m/s) <span id="v0-sl">0.00</span></label>
+          <input type="range" id="v0-slider" min="-3" max="3" step="0.1" value="0" oninput="updateIC()">
+        </div>
+        <div class="slider-group">
+          <label>k (N/m) <span id="mas-k">20</span></label>
+          <input type="range" id="mas-k-sl" min="5" max="80" value="20" oninput="updateMasK(this.value)">
+        </div>
+        <div class="slider-group">
+          <label>m (kg) <span id="mas-m">1.0</span></label>
+          <input type="range" id="mas-m-sl" min="0.5" max="5" step="0.1" value="1" oninput="updateMasM(this.value)">
+        </div>
+        <div class="slider-group">
+          <label>Amortiguamiento b <span id="mas-b-val">0.0</span></label>
+          <input type="range" id="mas-b-sl" min="0" max="6" step="0.1" value="0" oninput="updateMasB(this.value)">
+        </div>
+
+        <aside class="eq-box teal" style="margin-top: 16px;">
+          <div class="eq" id="mas-amp-eq">A = 0.80 m</div>
+          <div class="eq-sub" id="mas-phi-eq">φ = 0.00 rad</div>
+        </aside>
+        <aside class="eq-box gold">
+          <div class="eq" id="mas-omega-eq">ω₀ = 4.47 rad/s</div>
+          <div class="eq-sub" id="mas-period-eq">T = 1.41 s</div>
+        </aside>
+      </article>
+    </div>
+
+    <!-- Espacio de fases -->
+    <div class="grid2" style="margin-top:24px;">
+      <article class="card">
+        <div class="card-title">📉 Gráfica Temporal x(t), v(t), a(t)</div>
+        <canvas id="time-canvas" height="140" style="width:100%;"></canvas>
+        <div class="toggle-row" style="margin-top:16px; justify-content:center;">
+          <button class="toggle-btn active" id="show-x" onclick="toggleTrace('x')">Posición</button>
+          <button class="toggle-btn" id="show-v" onclick="toggleTrace('v')">Velocidad</button>
+          <button class="toggle-btn" id="show-a" onclick="toggleTrace('a')">Aceleración</button>
+        </div>
+      </article>
+      <article class="card">
+        <div class="card-title">🌀 Espacio de Fases (x vs v)</div>
+        <canvas id="phase-canvas" height="140" style="width:100%;"></canvas>
+        <p style="font-size:10px;color:var(--muted);font-family:'Space Mono',monospace;margin-top:8px;text-align:center;">Sin fricción → elipse perfecta · Con fricción → espiral hacia el origen</p>
+      </article>
+    </div>
+
+    <div class="btn-row">
+      <button class="btn btn-ghost" onclick="goPanel(1)">← Fasorial</button>
+      <button class="btn btn-secondary" onclick="resetMas()">Reiniciar</button>
+      <button class="btn btn-primary" onclick="awardSimBadge(); goPanel(3)">Siguiente: Quiz →</button>
+    </div>
+  </section>
+
+  <!-- ════════════ PANEL 3: QUIZ ════════════ -->
+  <section class="panel" id="panel-3">
+    <div style="max-width:700px;margin:0 auto;">
+      <article class="card">
+        <div class="card-title">🧠 Quiz — MAS y Ecuaciones Diferenciales</div>
+        <div class="quiz-progress" id="quiz-prog">Pregunta 1 de 6</div>
+        <div id="quiz-container"></div>
+      </article>
+    </div>
+  </section>
+
+  <!-- ════════════ PANEL 4: DESAFÍO ════════════ -->
+  <section class="panel" id="panel-4">
+    <article class="card" style="margin-bottom:24px;">
+      <div class="card-title">⚡ DESAFÍOS NUMÉRICOS — MAS</div>
+      <p style="font-size:12px;color:var(--muted);font-family:'Space Mono',monospace;line-height:1.6;margin-bottom:22px;">
+        Aplica la solución de la ED para resolver situaciones reales. Cada correcto suma XP extra.
+      </p>
+      <div id="chal-container"></div>
+    </article>
+    <div class="btn-row">
+      <button class="btn btn-ghost" onclick="goPanel(3)">← Quiz</button>
+      <button class="btn btn-primary" onclick="goPanel(5)">Ver Logros →</button>
+    </div>
+  </section>
+
+  <!-- ════════════ PANEL 5: LOGROS ════════════ -->
+  <section class="panel" id="panel-5">
+    <div class="grid2" style="margin-bottom:24px;">
+      <article class="card" style="text-align:center;">
+        <div class="card-title" style="text-align:center;">🏆 PUNTAJE FINAL</div>
+        <div class="score-ring" id="score-ring" style="--pct:0%">
+          <div class="sv" id="final-xp">0</div>
+          <div class="sl">XP</div>
+        </div>
+        <div style="font-size:24px;font-weight:900;margin-bottom:6px;" id="grade-lbl">—</div>
+        <div style="font-size:12px;color:var(--muted);font-family:'Space Mono',monospace;" id="grade-desc">Completa el módulo</div>
+      </article>
+      <article class="card">
+        <div class="card-title">🎖️ INSIGNIAS</div>
+        <div class="badge-grid">
+          <div class="badge" id="badge-theory"><div class="badge-icon">📡</div><div class="badge-name">Teórico</div></div>
+          <div class="badge" id="badge-phasor"><div class="badge-icon">🌀</div><div class="badge-name">Fasorial</div></div>
+          <div class="badge" id="badge-sim"><div class="badge-icon">🎮</div><div class="badge-name">Simulador</div></div>
+          <div class="badge" id="badge-quiz"><div class="badge-icon">🧠</div><div class="badge-name">Quiz Pro</div></div>
+          <div class="badge" id="badge-chal"><div class="badge-icon">⚡</div><div class="badge-name">Desafío</div></div>
+          <div class="badge" id="badge-perfect"><div class="badge-icon">🌟</div><div class="badge-name">Perfecto</div></div>
+          <div class="badge" id="badge-streak"><div class="badge-icon">🔥</div><div class="badge-name">Racha x3</div></div>
+        </div>
+      </article>
+    </div>
+
+    <article class="card" style="margin-bottom:24px;">
+      <div class="card-title">📋 RESUMEN MÓDULO 2</div>
+      <div class="grid3">
+        <figure class="concept-item" style="flex-direction:column;align-items:center;text-align:center;">
+          <span style="font-size:28px;">🌊</span>
+          <h4 class="hg">x(t) = A·cos(ω₀t + φ)</h4>
+          <p>Solución de la ED del oscilador armónico</p>
+        </figure>
+        <figure class="concept-item" style="flex-direction:column;align-items:center;text-align:center;">
+          <span style="font-size:28px;">🌀</span>
+          <h4 class="hg2">A = √(x₀² + v₀²/ω₀²)</h4>
+          <p>Amplitud determinada por condiciones iniciales</p>
+        </figure>
+        <figure class="concept-item" style="flex-direction:column;align-items:center;text-align:center;">
+          <span style="font-size:28px;">⏱️</span>
+          <h4 class="hg3">T = 2π/ω₀</h4>
+          <p>Período isocrono — independiente de A</p>
+        </figure>
+      </div>
+    </article>
+
+    <article class="card">
+      <div class="card-title">🚀 SIGUIENTE MÓDULO</div>
+      <div class="next-preview">
+        <div class="next-icon">🔴</div>
+        <div class="next-text">
+          <h3>Módulo 3: Resonancia</h3>
+          <p>¿Qué ocurre cuando una fuerza externa oscila a la misma frecuencia ω₀ del sistema? La ED se transforma: mx'' + kx = F₀·cos(ωt). Amplitudes infinitas y el colapso de puentes.</p>
+        </div>
+        <div class="next-arrow">→</div>
+      </div>
+    </article>
+
+    <div class="btn-row" style="justify-content:center;margin-top:32px;">
+      <button class="btn btn-ghost" onclick="goPanel(4)">← Desafíos</button>
+      <button class="btn btn-primary" onclick="restartModule()">🔄 Reiniciar Módulo</button>
+    </div>
+  </section>
+</main>
+
+<script>
+// ════════════════════════════════════════════
+// STATE
+// ════════════════════════════════════════════
+let xp=0, streak=0;
+let currentPanel=0;
+let badges={theory:false,phasor:false,sim:false,quiz:false,chal:false,perfect:false,streak:false};
+let quizCorrect=0, quizIdx=0;
+let chalIdx=0;
+
+// ════════════════════════════════════════════
+// UI HELPERS
+// ════════════════════════════════════════════
+function addXP(n){
+  xp+=n; document.getElementById('score-display').textContent=xp;
+  if(xp>=400) setStars(3); else if(xp>=200) setStars(2); else if(xp>=60) setStars(1);
+}
+function setStars(n){ const s=['☆☆☆','★☆☆','★★☆','★★★']; document.getElementById('stars-display').textContent=s[n]; }
+function addStreak(){
+  streak++; document.getElementById('streak-display').textContent=streak+'🔥';
+  if(streak>=3&&!badges.streak) awardBadge('streak','🔥 ¡Racha x3!');
+}
+function awardBadge(id,msg){
+  if(badges[id]) return;
+  badges[id]=true;
+  const el=document.getElementById('badge-'+id);
+  if(el) el.classList.add('earned');
+  showToast(msg||'🏆 ¡Insignia!');
+}
+function showToast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),3000);
+}
+
+function goPanel(n){
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.getElementById('panel-'+n).classList.add('active');
+  document.querySelectorAll('.step-item').forEach((s,i)=>{
+    s.classList.remove('active','done');
+    if(i<n) s.classList.add('done');
+    if(i===n) s.classList.add('active');
+  });
+  currentPanel=n;
+  if(n===1){ initPhasor(); }
+  if(n===2){ startMas(); }
+  if(n===3){ renderQuiz(); }
+  if(n===4){ renderChallenge(); }
+  if(n===5){ renderScore(); }
+}
+
+// ════════════════════════════════════════════
+// PHASOR DIAGRAM
+// ════════════════════════════════════════════
+let phasorA=1.0, phasorPhi=0, phasorW0=3, phasorAnim=false, phasorAnimId=null;
+let pDragging=false;
+
+function initPhasor(){
+  const c=document.getElementById('phasor-canvas');
+  c.addEventListener('mousedown', pMouseDown);
+  c.addEventListener('touchstart', pTouchStart,{passive:true});
+  window.addEventListener('mouseup',()=>pDragging=false);
+  window.addEventListener('touchend',()=>pDragging=false);
+  window.addEventListener('mousemove', pMouseMove);
+  window.addEventListener('touchmove', pTouchMove,{passive:true});
+  drawPhasor(); drawWave();
+}
+
+function pMouseDown(e){
+  pDragging=true;
+  movePhasor(e.clientX, e.clientY, e.currentTarget);
+}
+function pTouchStart(e){
+  pDragging=true;
+  movePhasor(e.touches[0].clientX, e.touches[0].clientY, e.currentTarget);
+}
+function pMouseMove(e){ if(pDragging){ const c=document.getElementById('phasor-canvas'); movePhasor(e.clientX,e.clientY,c); } }
+function pTouchMove(e){ if(pDragging){ const c=document.getElementById('phasor-canvas'); movePhasor(e.touches[0].clientX,e.touches[0].clientY,c); } }
+
+function movePhasor(cx,cy,canvas){
+  const rect=canvas.getBoundingClientRect();
+  const W=canvas.offsetWidth, H=canvas.offsetHeight;
+  const scaleX=canvas.width/W, scaleY=canvas.height/H;
+  const x=(cx-rect.left)*scaleX - canvas.width/2;
+  const y=-((cy-rect.top)*scaleY - canvas.height/2);
+  const maxR=canvas.height*0.38;
+  phasorA=Math.min(2, Math.sqrt(x*x+y*y)/maxR);
+  phasorPhi=Math.atan2(y,x);
+  updatePhasorInfo();
+  drawPhasor(); drawWave();
+}
+
+function updateW0(v){ phasorW0=+v; document.getElementById('w0-val').textContent=(+v).toFixed(2); drawWave(); }
+
+function updatePhasorInfo(){
+  document.getElementById('amp-display').textContent=phasorA.toFixed(2);
+  document.getElementById('phi-display').textContent=(phasorPhi*180/Math.PI).toFixed(1)+'°';
+  document.getElementById('x0-display').textContent=(phasorA*Math.cos(phasorPhi)).toFixed(2);
+}
+
+function toggleAnim(){
+  phasorAnim=!phasorAnim;
+  document.getElementById('anim-btn').textContent=phasorAnim?'⏸ Pausar':'▶ Animar Fasor';
+  if(phasorAnim){ requestAnimationFrame(animatePhasorStart); }
+  else if(phasorAnimId){ cancelAnimationFrame(phasorAnimId); }
+}
+
+let phasorT=0, pLastTime=null;
+function animatePhasor(ts){
+  if(!pLastTime) pLastTime=ts;
+  const dt=Math.min((ts-pLastTime)/1000,0.05);
+  pLastTime=ts;
+  phasorPhi+=phasorW0*dt;
+  updatePhasorInfo();
+  drawPhasor(); drawWave();
+  if(phasorAnim) phasorAnimId=requestAnimationFrame(animatePhasor);
+}
+function animatePhasorStart(ts){ pLastTime=null; animatePhasor(ts); }
+
+function drawPhasor(){
+  const canvas=document.getElementById('phasor-canvas');
+  const W=canvas.width, H=canvas.height;
+  const ctx=canvas.getContext('2d');
+  const cx=W/2, cy=H/2;
+  const R=H*0.22;
+  ctx.clearRect(0,0,W,H);
+
+  // bg
+  const bg=ctx.createRadialGradient(cx,cy,0,cx,cy,R*1.2);
+  bg.addColorStop(0,'rgba(240,180,41,0.04)');
+  bg.addColorStop(1,'transparent');
+  ctx.fillStyle=bg; ctx.fillRect(0,0,W,H);
+
+  // Grid circles
+  ctx.strokeStyle='rgba(255,255,255,0.06)'; ctx.lineWidth=1;
+  for(let r=R/4;r<=R;r+=R/4){
+    ctx.beginPath(); ctx.arc(cx,cy,r,0,Math.PI*2); ctx.stroke();
+  }
+  // Axes
+  ctx.strokeStyle='rgba(255,255,255,0.15)'; ctx.lineWidth=1;
+  ctx.beginPath(); ctx.moveTo(cx-R*1.1,cy); ctx.lineTo(cx+R*1.1,cy); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(cx,cy-R*1.1); ctx.lineTo(cx,cy+R*1.1); ctx.stroke();
+
+  const vx=phasorA*R*Math.cos(phasorPhi);
+  const vy=-phasorA*R*Math.sin(phasorPhi);
+
+  // Projection on x-axis
+  ctx.strokeStyle='rgba(0,212,170,0.4)'; ctx.setLineDash([5,5]); ctx.lineWidth=1.5;
+  ctx.beginPath(); ctx.moveTo(cx+vx,cy+vy); ctx.lineTo(cx+vx,cy); ctx.stroke();
+  ctx.setLineDash([]);
+
+  // Vector
+  const grad=ctx.createLinearGradient(cx,cy,cx+vx,cy+vy);
+  grad.addColorStop(0,'rgba(240,180,41,0.3)'); grad.addColorStop(1,'rgba(240,180,41,1)');
+  ctx.strokeStyle=grad; ctx.lineWidth=3;
+  ctx.beginPath(); ctx.moveTo(cx,cy); ctx.lineTo(cx+vx,cy+vy); ctx.stroke();
+
+  // Arrowhead
+  const angle=Math.atan2(vy,vx);
+  ctx.fillStyle='rgba(240,180,41,1)';
+  ctx.beginPath();
+  ctx.moveTo(cx+vx,cy+vy);
+  ctx.lineTo(cx+vx-10*Math.cos(angle-0.4),cy+vy-10*Math.sin(angle-0.4));
+  ctx.lineTo(cx+vx-10*Math.cos(angle+0.4),cy+vy-10*Math.sin(angle+0.4));
+  ctx.closePath(); ctx.fill();
+
+  // Dot at tip
+  ctx.beginPath(); ctx.arc(cx+vx,cy+vy,5,0,Math.PI*2);
+  ctx.fillStyle='#fff'; ctx.fill();
+
+  // x-projection dot
+  ctx.beginPath(); ctx.arc(cx+vx,cy,7,0,Math.PI*2);
+  ctx.fillStyle='var(--accent2)';
+  const gd2=ctx.createRadialGradient(cx+vx,cy,0,cx+vx,cy,10);
+  gd2.addColorStop(0,'rgba(0,212,170,1)'); gd2.addColorStop(1,'rgba(0,212,170,0)');
+  ctx.fillStyle=gd2; ctx.fill();
+
+  // Labels
+  ctx.fillStyle='rgba(240,180,41,0.7)';
+  ctx.font='bold 13px Space Mono, monospace'; ctx.textAlign='left';
+  ctx.fillText('Re', cx+R*1.05, cy-5);
+  ctx.fillStyle='rgba(255,255,255,0.4)';
+  ctx.fillText('Im', cx+5, cy-R*1.05);
+
+  // A label
+  ctx.fillStyle='rgba(240,180,41,0.9)';
+  ctx.font='bold 12px Space Mono, monospace';
+  ctx.textAlign='center';
+  ctx.fillText('A='+phasorA.toFixed(2), cx+vx/2-10, cy+vy/2-10);
+
+  // phi arc
+  if(Math.abs(phasorPhi)>0.05){
+    ctx.strokeStyle='rgba(255,107,107,0.5)'; ctx.lineWidth=1.5;
+    ctx.beginPath(); ctx.arc(cx,cy,R*0.2,0,-phasorPhi); ctx.stroke();
+    ctx.fillStyle='rgba(255,107,107,0.7)'; ctx.font='12px Space Mono,monospace';
+    ctx.fillText('φ',cx+R*0.25,cy-4);
+  }
+}
+
+function drawWave(){
+  const canvas=document.getElementById('wave-canvas');
+  if(!canvas) return;
+  const W=canvas.width, H=canvas.height;
+  const ctx=canvas.getContext('2d');
+  ctx.clearRect(0,0,W,H);
+  const cy=H/2;
+  const amplitude=phasorA*(H*0.22);
+
+  // Grid
+  ctx.strokeStyle='rgba(255,255,255,0.05)'; ctx.lineWidth=1;
+  ctx.beginPath(); ctx.moveTo(0,cy); ctx.lineTo(W,cy); ctx.stroke();
+
+  const T=2*Math.PI/phasorW0;
+  for(let t=0;t<=2*T;t+=T/2){
+    const px=t/( 2.5*T)*W;
+    ctx.strokeStyle='rgba(255,255,255,0.04)';
+    ctx.beginPath(); ctx.moveTo(px,0); ctx.lineTo(px,H); ctx.stroke();
+  }
+
+  // Wave
+  const grad=ctx.createLinearGradient(0,0,W,0);
+  grad.addColorStop(0,'rgba(240,180,41,0.3)');
+  grad.addColorStop(0.5,'rgba(240,180,41,1)');
+  grad.addColorStop(1,'rgba(0,212,170,0.6)');
+  ctx.strokeStyle=grad; ctx.lineWidth=2.5;
+  ctx.beginPath();
+  for(let px=0;px<=W;px++){
+    const t=(px/W)*2.5*T;
+    const y=amplitude*Math.cos(phasorW0*t+phasorPhi);
+    px===0 ? ctx.moveTo(px,cy-y) : ctx.lineTo(px,cy-y);
+  }
+  ctx.stroke();
+
+  // Current time dot (t=0 projection)
+  const y0=amplitude*Math.cos(phasorPhi);
+  ctx.beginPath(); ctx.arc(0,cy-y0,6,0,Math.PI*2);
+  ctx.fillStyle='var(--accent2)'; ctx.fill();
+  ctx.strokeStyle='rgba(0,212,170,0.4)'; ctx.lineWidth=1.5; ctx.setLineDash([4,4]);
+  ctx.beginPath(); ctx.moveTo(0,cy-y0); ctx.lineTo(0,cy); ctx.stroke();
+  ctx.setLineDash([]);
+
+  // Labels
+  ctx.fillStyle='rgba(240,180,41,0.7)'; ctx.font='11px Space Mono,monospace'; ctx.textAlign='right';
+  ctx.fillText('A='+phasorA.toFixed(2), W-4, cy-amplitude-4);
+  ctx.fillText('-A', W-4, cy+amplitude+12);
+}
+
+function awardPhasorBadge(){
+  if(!badges.phasor){ awardBadge('phasor','🌀 ¡Insignia Fasorial desbloqueada!'); addXP(75); }
+  goPanel(2);
+}
+
+// ════════════════════════════════════════════
+// MAS SIMULATOR
+// ════════════════════════════════════════════
+let masK=20, masM=1, masB=0, masX0=0.8, masV0=0;
+let masPos=0.8, masVel=0, masTime=0;
+let masHistory={x:[],v:[],a:[]};
+let masPhaseH=[];
+let masAnimId=null, masLastT=null;
+let showTraces={x:true,v:false,a:false};
+let masDragging=false, masDragStartY=0, masDragStartPos=0;
+
+function startMas(){
+  resetMas();
+  const c=document.getElementById('mas-canvas');
+  c.removeEventListener('mousedown',masMouseDown);
+  c.removeEventListener('touchstart',masTouchStart);
+  c.addEventListener('mousedown',masMouseDown);
+  c.addEventListener('touchstart',masTouchStart,{passive:true});
+  window.addEventListener('mouseup',()=>masDragging=false);
+  window.addEventListener('touchend',()=>masDragging=false);
+  window.addEventListener('mousemove',masMouseMove);
+  window.addEventListener('touchmove',masTouchMove,{passive:true});
+  masLastT=null;
+  masLoop(performance.now());
+}
+function masMouseDown(e){ masDragging=true; masDragStartY=e.clientY; masDragStartPos=masPos; }
+function masMouseMove(e){ if(masDragging){ masPos=Math.max(-1,Math.min(1,masDragStartPos+(e.clientY-masDragStartY)*0.005)); masVel=0; } }
+function masTouchStart(e){ masDragging=true; masDragStartY=e.touches[0].clientY; masDragStartPos=masPos; }
+function masTouchMove(e){ if(masDragging){ masPos=Math.max(-1,Math.min(1,masDragStartPos+(e.touches[0].clientY-masDragStartY)*0.005)); masVel=0; } }
+
+function updateIC(){
+  masX0=+document.getElementById('x0-slider').value;
+  masV0=+document.getElementById('v0-slider').value;
+  document.getElementById('x0-sl').textContent=masX0.toFixed(2);
+  document.getElementById('v0-sl').textContent=masV0.toFixed(2);
+  resetMas();
+}
+function updateMasK(v){ masK=+v; document.getElementById('mas-k').textContent=v; resetMas(); }
+function updateMasM(v){ masM=+v; document.getElementById('mas-m').textContent=(+v).toFixed(1); resetMas(); }
+function updateMasB(v){ masB=+v; document.getElementById('mas-b-val').textContent=(+v).toFixed(1); resetMas(); }
+
+function resetMas(){
+  masPos=masX0; masVel=masV0; masTime=0;
+  masHistory={x:[],v:[],a:[]};
+  masPhaseH=[];
+  const w0=Math.sqrt(masK/masM);
+  const A=Math.sqrt(masX0*masX0+masV0*masV0/(w0*w0));
+  window.masA = A;
+  const phi=Math.atan2(-masV0/w0, masX0);
+  document.getElementById('mas-amp-eq').textContent='A = '+A.toFixed(3)+' m';
+  document.getElementById('mas-phi-eq').textContent='φ = '+phi.toFixed(3)+' rad';
+  document.getElementById('mas-omega-eq').textContent='ω₀ = '+w0.toFixed(3)+' rad/s';
+  document.getElementById('mas-period-eq').textContent='T = '+(2*Math.PI/w0).toFixed(3)+' s';
+}
+
+function toggleTrace(t){
+  showTraces[t]=!showTraces[t];
+  document.getElementById('show-'+t).classList.toggle('active', showTraces[t]);
+}
+
+function masLoop(ts){
+  if(!masLastT) masLastT=ts;
+  const dt=Math.min((ts-masLastT)/1000, 0.05);
+  masLastT=ts;
+
+  if(!masDragging){
+    const acc=-(masK/masM)*masPos-(masB/masM)*masVel;
+    masVel+=acc*dt; masPos+=masVel*dt; masTime+=dt;
+    const acc2=-(masK/masM)*masPos-(masB/masM)*masVel;
+    masHistory.x.push(masPos);
+    masHistory.v.push(masVel);
+    masHistory.a.push(acc2);
+    masPhaseH.push({x:masPos,v:masVel});
+    if(masHistory.x.length>600){ masHistory.x.shift(); masHistory.v.shift(); masHistory.a.shift(); masPhaseH.shift(); }
+  }
+
+  document.getElementById('mas-x').textContent=masPos.toFixed(3);
+  document.getElementById('mas-v').textContent=masVel.toFixed(3);
+  document.getElementById('mas-a').textContent=(-(masK/masM)*masPos).toFixed(3);
+  document.getElementById('mas-t').textContent=masTime.toFixed(2);
+
+  drawMasCanvas(masPos);
+  drawTimeCanvas();
+  drawPhaseCanvas();
+  masAnimId=requestAnimationFrame(masLoop);
+}
+
+function drawMasCanvas(p){
+  const c=document.getElementById('mas-canvas');
+  const W=c.offsetWidth, H=360;
+  c.width=W; c.height=H;
+  const ctx=c.getContext('2d');
+  ctx.clearRect(0,0,W,H);
+
+  const cx=W/2, eqY=H*0.4;
+  const pxPos=p*(H*0.35 / Math.max(1, window.masA || 1));
+  const massY=eqY+pxPos;
+
+  // background
+  const bg=ctx.createLinearGradient(0,0,0,H);
+  bg.addColorStop(0,'rgba(240,180,41,0.02)');
+  bg.addColorStop(1,'rgba(0,212,170,0.02)');
+  ctx.fillStyle=bg; ctx.fillRect(0,0,W,H);
+
+  // Equilibrium
+  ctx.setLineDash([6,4]); ctx.strokeStyle='rgba(80,100,120,0.5)'; ctx.lineWidth=1;
+  ctx.beginPath(); ctx.moveTo(cx-90,eqY); ctx.lineTo(cx+90,eqY); ctx.stroke();
+  ctx.setLineDash([]);
+
+  // Ceiling
+  ctx.fillStyle='rgba(240,180,41,0.12)'; ctx.fillRect(cx-55,0,110,28);
+  ctx.strokeStyle='rgba(240,180,41,0.4)'; ctx.lineWidth=2;
+  ctx.beginPath(); ctx.moveTo(cx-65,28); ctx.lineTo(cx+65,28); ctx.stroke();
+
+  // Spring coil
+  drawMasCoil(ctx, cx, 28, massY-20, p);
+
+  // Trail
+  if(masHistory.x.length>2){
+    for(let i=Math.max(0,masHistory.x.length-60); i<masHistory.x.length; i++){
+      const tp=masHistory.x[i]*(H*0.38);
+      const alpha=(i-Math.max(0,masHistory.x.length-60))/60*0.4;
+      ctx.beginPath(); ctx.arc(cx, eqY+tp, 3, 0, Math.PI*2);
+      ctx.fillStyle=`rgba(240,180,41,${alpha})`; ctx.fill();
+    }
+  }
+
+  // Mass
+  const hue=p>0?'rgba(240,100,41,0.95)':'rgba(0,212,170,0.95)';
+  ctx.shadowColor=hue; ctx.shadowBlur=24;
+  ctx.beginPath(); ctx.arc(cx, massY, 24, 0, Math.PI*2);
+  ctx.fillStyle=hue; ctx.fill();
+  ctx.shadowBlur=0;
+
+  // x label
+  if(Math.abs(p)>0.05){
+    ctx.strokeStyle='rgba(255,215,0,0.5)'; ctx.lineWidth=1.5; ctx.setLineDash([3,3]);
+    ctx.beginPath(); ctx.moveTo(cx+58,eqY); ctx.lineTo(cx+58,massY); ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillStyle='#ffd700'; ctx.font='bold 12px Space Mono,monospace'; ctx.textAlign='left';
+    ctx.fillText(`x=${p.toFixed(3)}m`, cx+63, (eqY+massY)/2+4);
+  }
+
+  // velocity vector
+  if(!masDragging && Math.abs(masVel)>0.02){
+    const vLen=masVel*30;
+    const vy2=massY+vLen;
+    ctx.strokeStyle='rgba(0,212,170,0.7)'; ctx.lineWidth=2;
+    ctx.beginPath(); ctx.moveTo(cx,massY+24*(masVel>0?1:-1)); ctx.lineTo(cx,vy2); ctx.stroke();
+    const d=masVel>0?1:-1;
+    ctx.fillStyle='rgba(0,212,170,0.9)';
+    ctx.beginPath(); ctx.moveTo(cx,vy2); ctx.lineTo(cx-6,vy2-8*d); ctx.lineTo(cx+6,vy2-8*d); ctx.closePath(); ctx.fill();
+  }
+}
+
+function drawMasCoil(ctx,x,y1,y2,disp){
+  const coils=12, r=16;
+  const h=y2-y1;
+  const c=disp>0?`rgba(240,${Math.round(100+disp*50)},41,0.9)`:`rgba(${Math.round(0+Math.abs(disp)*50)},212,170,0.9)`;
+  ctx.strokeStyle=c; ctx.lineWidth=2.2;
+  ctx.beginPath(); ctx.moveTo(x,y1);
+  const segs=coils*2;
+  for(let i=0;i<=segs;i++){
+    const t=i/segs;
+    const cx2=x+r*(i%2===0?1:-1);
+    const cy2=y1+t*h;
+    ctx.lineTo(cx2,cy2);
+  }
+  ctx.lineTo(x,y2); ctx.stroke();
+}
+
+function drawTimeCanvas(){
+  const c=document.getElementById('time-canvas');
+  if(!c) return;
+  const W=c.offsetWidth, H=140;
+  c.width=W; c.height=H;
+  const ctx=c.getContext('2d');
+  ctx.clearRect(0,0,W,H);
+  ctx.strokeStyle='rgba(255,255,255,0.05)'; ctx.lineWidth=1;
+  ctx.beginPath(); ctx.moveTo(0,H/2); ctx.lineTo(W,H/2); ctx.stroke();
+
+  const n=masHistory.x.length;
+  if(n<2) return;
+  const step=W/(n-1);
+
+  const draw=(arr,col,scale)=>{
+    ctx.strokeStyle=col; ctx.lineWidth=2; ctx.beginPath();
+    arr.forEach((v,i)=>{
+      const px=i*step, py=H/2-v*scale;
+      i===0?ctx.moveTo(px,py):ctx.lineTo(px,py);
+    }); ctx.stroke();
+  };
+  const scA = window.masA || 1;
+  const scX = (H*0.4) / Math.max(1, scA);
+  const scV = (H*0.4) / Math.max(1, scA * Math.sqrt(masK/masM));
+  const scAcc = (H*0.4) / Math.max(1, scA * (masK/masM));
+  if(showTraces.x) draw(masHistory.x,'rgba(240,180,41,0.9)',scX);
+  if(showTraces.v) draw(masHistory.v,'rgba(0,212,170,0.8)',scV);
+  if(showTraces.a) draw(masHistory.a,'rgba(255,107,107,0.7)',scAcc);
+}
+
+function drawPhaseCanvas(){
+  const c=document.getElementById('phase-canvas');
+  if(!c) return;
+  const W=c.offsetWidth, H=140;
+  c.width=W; c.height=H;
+  const ctx=c.getContext('2d');
+  ctx.clearRect(0,0,W,H);
+  ctx.strokeStyle='rgba(255,255,255,0.05)'; ctx.lineWidth=1;
+  ctx.beginPath(); ctx.moveTo(W/2,0); ctx.lineTo(W/2,H); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(0,H/2); ctx.lineTo(W,H/2); ctx.stroke();
+
+  const n=masPhaseH.length;
+  if(n<2) return;
+  const scA = window.masA || 1;
+  const sx=(W*0.45)/Math.max(1, scA);
+  const sv=(H*0.4)/Math.max(1, scA*Math.sqrt(masK/masM));
+  ctx.lineWidth=1.5;
+  for(let i=1;i<n;i++){
+    const alpha=i/n;
+    ctx.strokeStyle=`rgba(124,99,255,${alpha*0.8})`;
+    ctx.beginPath();
+    ctx.moveTo(W/2+masPhaseH[i-1].x*sx, H/2-masPhaseH[i-1].v*sv);
+    ctx.lineTo(W/2+masPhaseH[i].x*sx, H/2-masPhaseH[i].v*sv);
+    ctx.stroke();
+  }
+  // current dot
+  const last=masPhaseH[n-1];
+  ctx.beginPath(); ctx.arc(W/2+last.x*sx,H/2-last.v*sv,4,0,Math.PI*2);
+  ctx.fillStyle='rgba(240,180,41,1)'; ctx.fill();
+}
+
+function awardSimBadge(){
+  if(!badges.sim){ awardBadge('sim','🎮 ¡Insignia Simulador!'); addXP(75); }
+}
+
+// ════════════════════════════════════════════
+// QUIZ
+// ════════════════════════════════════════════
+const QUESTIONS=[
+  {
+    q:"La solución general de x'' + 16x = 0 es:",
+    opts:["x=Ce^{-4t}","x=A·cos(4t)+B·sin(4t)","x=A·t·e^{4t}","x=Ae^{4t}"],
+    ans:1,
+    exp:"✅ La ecuación característica r²+16=0 → r=±4i → solución oscilatoria con ω₀=4."
+  },
+  {
+    q:"Un oscilador tiene x(0)=2 y v(0)=0 con ω₀=3 rad/s. La amplitud A vale:",
+    opts:["A=2 m","A=3 m","A=6 m","A=√(4+9)=√13 m"],
+    ans:0,
+    exp:"✅ A=√(x₀²+v₀²/ω₀²)=√(4+0)=2 m. Con velocidad inicial cero, A=|x₀|."
+  },
+  {
+    q:"¿Cuál afirmación sobre el período T del MAS es correcta?",
+    opts:["T depende de la amplitud A","T=2π√(m/k), independiente de A","T aumenta si A es mayor","T=√(k/m)"],
+    ans:1,
+    exp:"✅ El isocrónismo: T=2π/ω₀=2π√(m/k) no depende de la amplitud — propiedad fundamental del MAS."
+  },
+  {
+    q:"La fase inicial φ se relaciona con las condiciones iniciales como:",
+    opts:["φ=arctan(v₀/x₀)","φ=arctan(−v₀/(ω₀·x₀))","φ=x₀/ω₀","φ=ω₀·x₀/v₀"],
+    ans:1,
+    exp:"✅ De x(0)=A·cos(φ)=x₀ y x'(0)=−A·ω₀·sin(φ)=v₀, se obtiene tan(φ)=−v₀/(ω₀·x₀)."
+  },
+  {
+    q:"En el espacio de fases (x vs v), un MAS sin amortiguamiento traza:",
+    opts:["Una línea recta","Una parábola","Una elipse","Una espiral que converge al origen"],
+    ans:2,
+    exp:"✅ Sin fricción la energía se conserva: E=½mv²+½kx²=cte → elipse en el espacio de fases."
+  },
+  {
+    q:"Si duplicamos la masa m manteniendo k constante, el período T:",
+    opts:["Se duplica","Se reduce a la mitad","Se multiplica por √2","No cambia"],
+    ans:2,
+    exp:"✅ T=2π√(m/k). Si m→2m, T→2π√(2m/k)=√2·T. El período se multiplica por √2 ≈ 1.41."
+  }
+];
+
+let qIdx=0, qAnswered=false, qCorrect=0;
+
+function renderQuiz(){ qIdx=0; qAnswered=false; qCorrect=0; renderQ(); }
+
+function renderQ(){
+  const cont=document.getElementById('quiz-container');
+  if(qIdx>=QUESTIONS.length){
+    cont.innerHTML=`
+      <div style="text-align:center;padding:32px 0;">
+        <div style="font-size:48px;margin-bottom: 16px;">${qCorrect>=5?'🏆':qCorrect>=4?'⭐':'💪'}</div>
+        <div style="font-size:26px;font-weight:900;color:var(--accent);margin-bottom:8px;">${qCorrect}/${QUESTIONS.length} correctas</div>
+        <div style="font-size:12px;color:var(--muted);font-family:'Space Mono',monospace;margin-bottom:24px;">
+          ${qCorrect===6?'¡Maestro del MAS!':qCorrect>=4?'¡Excelente comprensión!':'Sigue practicando.'}
+        </div>
+        <button class="btn btn-primary" onclick="goPanel(4)">Ir al Desafío →</button>
+      </div>`;
+    if(!badges.quiz&&qCorrect>=4) awardBadge('quiz','🧠 ¡Insignia Quiz Pro!');
+    if(qCorrect===6) awardBadge('perfect','🌟 ¡Puntaje perfecto!');
+    return;
+  }
+  document.getElementById('quiz-prog').textContent=`Pregunta ${qIdx+1} de ${QUESTIONS.length}`;
+  const q=QUESTIONS[qIdx];
+  qAnswered=false;
+  cont.innerHTML=`
+    <div class="quiz-question">${q.q}</div>
+    <div class="quiz-options">
+      ${q.opts.map((o,i)=>`<button class="quiz-opt" id="qo-${i}" onclick="selOpt(${i})">${String.fromCharCode(65+i)}. ${o}</button>`).join('')}
+    </div>
+    <div class="quiz-feedback" id="qfb">${q.exp}</div>
+    <div style="display:none;margin-top: 16px;" id="qnext">
+      <button class="btn btn-primary" onclick="nextQ()">Siguiente →</button>
+    </div>`;
+}
+
+function selOpt(i){
+  if(qAnswered) return;
+  qAnswered=true;
+  const q=QUESTIONS[qIdx];
+  document.querySelectorAll('.quiz-opt').forEach(o=>o.classList.add('disabled'));
+  const fb=document.getElementById('qfb');
+  if(i===q.ans){ qCorrect++; document.getElementById('qo-'+i).classList.add('correct'); fb.className='quiz-feedback ok'; addXP(100); addStreak(); showToast('✅ ¡Correcto! +100 XP'); }
+  else { document.getElementById('qo-'+i).classList.add('wrong'); document.getElementById('qo-'+q.ans).classList.add('correct'); fb.className='quiz-feedback err'; streak=0; document.getElementById('streak-display').textContent='0🔥'; }
+  document.getElementById('qnext').style.display='block';
+}
+function nextQ(){ qIdx++; renderQ(); }
+
+// ════════════════════════════════════════════
+// CHALLENGES
+// ════════════════════════════════════════════
+const CHALLENGES=[
+  {
+    title:"Amplitud desde condiciones iniciales",
+    desc:"Un resorte con k=25 N/m y m=1 kg parte de x(0)=0.6 m y v(0)=4 m/s. Calcula la amplitud A del movimiento.",
+    hint:"ω₀=√(k/m)=5 rad/s. Luego A=√(x₀²+(v₀/ω₀)²)",
+    ans:1.0, unit:"m", tol:0.02
+  },
+  {
+    title:"Tiempo para llegar al equilibrio",
+    desc:"Con x(t)=0.5·cos(2t) metros, ¿en qué instante t>0 el objeto pasa por x=0 por primera vez? Usa π≈3.14159.",
+    hint:"cos(2t)=0 → 2t=π/2 → t=π/4",
+    ans:0.785, unit:"s", tol:0.01
+  },
+  {
+    title:"Energía total del sistema",
+    desc:"Un MAS con k=50 N/m tiene amplitud A=0.4 m. ¿Cuál es la energía mecánica total E? (E=½kA²)",
+    hint:"E=½kA²",
+    ans:4.0, unit:"J", tol:0.05
+  },
+  {
+    title:"Fase inicial",
+    desc:"Un oscilador con ω₀=4 rad/s parte de x₀=0 m y v₀=−8 m/s. La solución es A·cos(4t+φ). ¿Cuál es φ en radianes? (usa π≈3.14159; da el valor entre 0 y 2π)",
+    hint:"x(0)=A·cos(φ)=0 → φ=π/2 o 3π/2. v(0)=−Aω₀sin(φ)=−8 <0 → sin(φ)>0 → φ=π/2≈1.5708",
+    ans:1.5708, unit:"rad", tol:0.01
+  }
+];
+
+let chIdx=0;
+function renderChallenge(){ chIdx=0; renderChalItem(); }
+
+function renderChalItem(){
+  const cont=document.getElementById('chal-container');
+  if(chIdx>=CHALLENGES.length){
+    cont.innerHTML=`
+      <div style="text-align:center;padding:32px 0;">
+        <div style="font-size:48px;margin-bottom:12px;">⚡</div>
+        <div style="font-size:22px;font-weight:900;color:var(--accent2);margin-bottom:8px;">¡Todos los desafíos completados!</div>
+        <div style="font-size:12px;color:var(--muted);font-family:'Space Mono',monospace;margin-bottom:22px;">Dominas la solución analítica del MAS.</div>
+        <button class="btn btn-teal" onclick="goPanel(5)">Ver Logros →</button>
+      </div>`;
+    if(!badges.chal) awardBadge('chal','⚡ ¡Insignia Desafío!');
+    return;
+  }
+  const c=CHALLENGES[chIdx];
+  cont.innerHTML=`
+    <div style="display:flex;gap:12px;align-items:center;margin-bottom: 16px;">
+      <div style="background:var(--accent);color:#000;font-weight:900;font-family:'Space Mono',monospace;width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;">${chIdx+1}</div>
+      <div style="font-size:15px;font-weight:800;">${c.title}</div>
+      <div style="margin-left:auto;font-size:11px;color:var(--muted);font-family:'Space Mono',monospace;">${chIdx+1}/${CHALLENGES.length}</div>
+    </div>
+    <div style="font-size:12px;color:var(--muted);font-family:'Space Mono',monospace;line-height:1.6;padding:16px;background:rgba(0,212,170,0.04);border:1px solid rgba(0,212,170,0.1);border-radius: 8px;margin-bottom: 16px;">${c.desc}</div>
+    <div class="num-chal">
+      <label style="font-size:11px;color:var(--muted);font-family:'Space Mono',monospace;">Respuesta (${c.unit}):</label>
+      <input type="number" id="ch-inp" step="any" placeholder="Ingresa tu resultado...">
+      <div id="ch-fb" style="display:none;margin-top:10px;padding:12px;border-radius:8px;font-family:'Space Mono',monospace;font-size:12px;"></div>
+      <div class="btn-row" style="margin-top: 16px;">
+        <button class="btn btn-ghost" onclick="showChalHint()">💡 Pista</button>
+        <button class="btn btn-primary" onclick="checkChal()">Verificar ✓</button>
+      </div>
+      <div id="ch-hint" style="display:none;margin-top:12px;padding:12px;background:rgba(240,180,41,0.06);border:1px solid rgba(240,180,41,0.2);border-radius:8px;font-family:'Space Mono',monospace;font-size:12px;color:var(--gold);">
+        💡 ${c.hint}
+      </div>
+    </div>`;
+}
+
+function showChalHint(){ document.getElementById('ch-hint').style.display='block'; }
+
+function checkChal(){
+  const val=parseFloat(document.getElementById('ch-inp').value);
+  const c=CHALLENGES[chIdx];
+  const fb=document.getElementById('ch-fb');
+  if(isNaN(val)){ fb.style.display='block'; fb.style.cssText+='background:rgba(255,107,107,0.08);border:1px solid var(--accent3);color:var(--accent3);'; fb.textContent='⚠️ Ingresa un número válido.'; return; }
+  const ok=Math.abs(val-c.ans)<=c.tol;
+  fb.style.display='block';
+  if(ok){
+    fb.style.cssText='display:block;background:rgba(0,212,170,0.08);border:1px solid var(--accent2);color:var(--accent2);padding:12px;border-radius:8px;font-family:Space Mono,monospace;font-size:12px;';
+    fb.textContent=`✅ ¡Correcto! Resultado: ${c.ans} ${c.unit}. +150 XP`;
+    addXP(150); addStreak(); showToast('✅ ¡Desafío superado! +150 XP');
+    setTimeout(()=>{ chIdx++; renderChalItem(); },1800);
+  } else {
+    fb.style.cssText='display:block;background:rgba(255,107,107,0.08);border:1px solid var(--accent3);color:var(--accent3);padding:12px;border-radius:8px;font-family:Space Mono,monospace;font-size:12px;';
+    fb.textContent='❌ No exactamente. Revisa el procedimiento e intenta de nuevo.';
+    streak=0; document.getElementById('streak-display').textContent='0🔥';
+  }
+}
+
+// ════════════════════════════════════════════
+// SCORE
+// ════════════════════════════════════════════
+function renderScore(){
+  const maxXP=1500;
+  const pct=Math.min(100,Math.round(xp/maxXP*100));
+  document.getElementById('score-ring').style.setProperty('--pct',pct+'%');
+  document.getElementById('final-xp').textContent=xp;
+  let g,d;
+  if(xp>=1100){g='S — Maestro MAS 🏆';d='Dominio total del oscilador armónico';}
+  else if(xp>=700){g='A — Experto ⭐';d='Excelente manejo de la ED y su solución';}
+  else if(xp>=350){g='B — Avanzado 📈';d='Buen entendimiento del MAS';}
+  else{g='C — Estudiante 📚';d='Sigue explorando cada sección';}
+  document.getElementById('grade-lbl').textContent=g;
+  document.getElementById('grade-desc').textContent=d;
+  Object.keys(badges).forEach(k=>{ if(badges[k]){ const el=document.getElementById('badge-'+k); if(el) el.classList.add('earned'); } });
+}
+
+function restartModule(){
+  xp=0; streak=0; qIdx=0; chIdx=0; qCorrect=0;
+  badges={theory:false,phasor:false,sim:false,quiz:false,chal:false,perfect:false,streak:false};
+  document.getElementById('score-display').textContent='0';
+  document.getElementById('stars-display').textContent='☆☆☆';
+  document.getElementById('streak-display').textContent='0🔥';
+  document.querySelectorAll('.badge').forEach(b=>b.classList.remove('earned'));
+  goPanel(0);
+}
+
+// ════════════════════════════════════════════
+// INIT
+// ════════════════════════════════════════════
+setTimeout(()=>{
+  if(!badges.theory){ awardBadge('theory','📡 ¡Bienvenido al Módulo 2! Insignia Teórico desbloqueada'); addXP(50); }
+},1500);
+
+// Start phasor animation loop (passive, just draws)
+function initialPhasorDraw(){
+  const c=document.getElementById('phasor-canvas');
+  if(c && currentPanel===1){ drawPhasor(); drawWave(); }
+}
+// Override requestAnimationFrame for phasor anim to use pLastTime properly
+const _raf=window.requestAnimationFrame;
+window.requestAnimationFrame=function(cb){ return _raf.call(window,cb); };
+</script>
+</body>
+</html>

@@ -1,0 +1,1382 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Resonancia — Módulo 3 · Ecuaciones Diferenciales</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Syne:wght@400;700;800;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0c0608;
+    --panel: #140a0c;
+    --border: #2a1018;
+    --accent: #ff3d6b;
+    --accent2: #ff9a3c;
+    --accent3: #c084fc;
+    --accent4: #34d399;
+    --text: #f0e8ea;
+    --muted: #bd8f9d;
+    --gold: #fbbf24;
+    --card: #160c0e;
+    --glow-red: 0 0 28px rgba(255,61,107,0.4);
+    --glow-orange: 0 0 24px rgba(255,154,60,0.35);
+    --glow-purple: 0 0 24px rgba(192,132,252,0.3);
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+
+  body {
+    font-family: 'Syne', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+  font-size: 16px; }
+
+  /* ─── BACKGROUND ─── */
+  body::before {
+    content:''; position:fixed; inset:0;
+    background:
+      radial-gradient(ellipse 70% 50% at 15% 85%, rgba(255,61,107,0.06) 0%, transparent 60%),
+      radial-gradient(ellipse 50% 40% at 85% 15%, rgba(192,132,252,0.05) 0%, transparent 55%),
+      radial-gradient(ellipse 60% 40% at 50% 50%, rgba(255,154,60,0.03) 0%, transparent 60%);
+    pointer-events:none; z-index:0;
+    animation: bgPulse 8s ease-in-out infinite;
+  }
+  @keyframes bgPulse {
+    0%,100% { opacity:1; } 50% { opacity:0.6; }
+  }
+  body::after {
+    content:''; position:fixed; inset:0;
+    background-image:
+      linear-gradient(rgba(255,61,107,0.025) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,61,107,0.025) 1px, transparent 1px);
+    background-size: 48px 48px;
+    pointer-events:none; z-index:0;
+  }
+
+  /* ─── HEADER ─── */
+.top-bar {
+    position: relative; z-index: 10;
+    padding: 24px 40px;
+    display: none !important; align-items: center; justify-content: space-between;
+    border-bottom: 1px solid var(--border);
+    background: rgba(12, 6, 8, 0.94);
+    backdrop-filter: blur(14px);
+  }
+  .logo { display:flex;   align-items:center; gap: 16px; }
+  .logo-icon {
+    width:46px; height:46px;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    border-radius:10px;
+    display:flex; align-items:center; justify-content:center;
+    font-size:22px; box-shadow: var(--glow-red);
+    animation: logoPulse 2s ease-in-out infinite;
+  }
+  @keyframes logoPulse {
+    0%,100%{ box-shadow: var(--glow-red); }
+    50%{ box-shadow: 0 0 40px rgba(255,61,107,0.7); }
+  }
+  .logo-meta { font-size:11px; color:var(--muted); font-family:'Space Mono',monospace; letter-spacing:1px; }
+  .logo h1 { font-size:19px; font-weight:900; color:var(--accent); letter-spacing:-0.5px; }
+  .hud { display:flex; gap: 16px; align-items:center; }
+  .hud-stat { text-align:center; background:var(--card); border:1px solid var(--border); border-radius:10px; padding:8px 16px; }
+  .hud-stat .val { font-size:21px; font-weight:900; color:var(--accent); font-family:'Space Mono',monospace; }
+  .hud-stat .lbl { font-size:10px; color:var(--muted); letter-spacing:2px; text-transform:uppercase; }
+  .module-nav { display:flex; gap:8px; }
+  .mod-btn { padding:6px  16px; border-radius:6px; font-size:11px; font-weight:700; letter-spacing:1px; text-transform:uppercase; cursor:pointer; font-family:'Space Mono',monospace; border:1px solid var(--border); background:transparent; color:var(--muted); transition:0.2s; }
+  .mod-btn.current { background:var(--accent); color:#000; border-color:var(--accent); }
+
+  /* ─── MAIN ─── */
+  main { position:relative; z-index:5; max-width:900px; margin:0 auto; padding: 32px 24px  96px; }
+
+  /* ─── TITLE ─── */
+  .section-title { text-align:center; margin-bottom:32px; }
+  .section-title .tag { display:inline-block; font-family:'Space Mono',monospace; font-size:11px; letter-spacing:3px; color:var(--accent); text-transform:uppercase; border:1px solid rgba(255,61,107,0.4); border-radius:20px; padding:5px  16px; margin-bottom: 16px; }
+  .section-title h2 { font-size:clamp(28px, 5vw, 48px); font-weight:900; line-height:0.95; }
+  .section-title h2 span { color:var(--accent); }
+  .section-title h2 em { color:var(--accent2); font-style:normal; }
+  .section-title p { margin-top:16px; font-size:16px; color:var(--muted); max-width:60ch; margin-inline:auto; font-family:'Space Mono',monospace; line-height:1.6; }
+
+  /* ─── STEPS ─── */
+  .steps-bar { display:flex; margin-bottom:32px; position:relative; }
+  .steps-bar::before { content:''; position:absolute; top:20px; left:0; right:0; height:2px; background:var(--border); z-index:0; }
+  .step-item { flex:1; display:flex; flex-direction:column; align-items:center; gap:8px; position:relative; z-index:1; cursor:pointer; }
+  .step-circle { width:40px; height:40px; border-radius:50%; border:2px solid var(--border); background:var(--bg); display:flex; align-items:center; justify-content:center; font-size:16px; font-weight:700; transition:all 0.3s; font-family:'Space Mono',monospace; }
+  .step-item.done   .step-circle { background:var(--accent4); border-color:var(--accent4); color:#000; }
+  .step-item.active .step-circle { background:var(--accent); border-color:var(--accent); color:#000; box-shadow:var(--glow-red); }
+  .step-label { font-size:10px; color:var(--muted); letter-spacing:1px; text-transform:uppercase; text-align:center; }
+  .step-item.active .step-label { color:var(--accent); }
+  .step-item.done   .step-label { color:var(--accent4); }
+
+  /* ─── PANEL ─── */
+  .panel { display:none; animation: fadeUp 0.45s ease; }
+  .panel.active { display:block; }
+  @keyframes fadeUp { from{opacity:0;transform:translateY(18px)} to{opacity:1;transform:translateY(0)} }
+
+  /* ─── CARD ─── */
+  .card { background:var(--card); border:1px solid var(--border); border-radius:18px; padding: 32px; }
+  .card-title { font-size:12px; font-weight:700; letter-spacing:3px; text-transform:uppercase; color:var(--accent); margin-bottom: 16px; font-family:'Space Mono',monospace; }
+
+  /* ─── EQ BOX ─── */
+  .eq-box { border-radius:14px; padding: 16px 24px; text-align:center; margin: 16px 0; }
+  .eq-box.red    { background:linear-gradient(135deg,rgba(255,61,107,0.1),rgba(255,61,107,0.04)); border:1px solid rgba(255,61,107,0.25); }
+  .eq-box.orange { background:linear-gradient(135deg,rgba(255,154,60,0.1),rgba(255,154,60,0.04)); border:1px solid rgba(255,154,60,0.25); }
+  .eq-box.purple { background:linear-gradient(135deg,rgba(192,132,252,0.1),rgba(192,132,252,0.04)); border:1px solid rgba(192,132,252,0.25); }
+  .eq-box.green  { background:linear-gradient(135deg,rgba(52,211,153,0.1),rgba(52,211,153,0.04)); border:1px solid rgba(52,211,153,0.25); }
+  .eq-box.glow-anim { animation: eqGlow 2s ease-in-out infinite; }
+  @keyframes eqGlow {
+    0%,100%{ box-shadow:none; }
+    50%{ box-shadow:0 0 30px rgba(255,61,107,0.4); }
+  }
+  .eq-box .eq { font-size:clamp(15px,2.3vw,24px); font-family:'Space Mono',monospace; letter-spacing:1px; }
+  .eq-box.red .eq    { color:var(--accent); }
+  .eq-box.orange .eq { color:var(--accent2); }
+  .eq-box.purple .eq { color:var(--accent3); }
+  .eq-box.green  .eq { color:var(--accent4); }
+  .eq-box .eq-sub { font-size:11px; color:var(--muted); margin-top:6px; font-family:'Space Mono',monospace; }
+
+  /* ─── GRIDS ─── */
+  .grid2 { display:grid; grid-template-columns:1fr 1fr; gap:24px; }
+  .grid3 { display:grid; grid-template-columns:1fr 1fr 1fr; gap: 16px; }
+  @media(max-width:900px){ .grid2,.grid3{ grid-template-columns:1fr; } }
+
+  /* ─── CONCEPT ─── */
+  .concept-item { display:flex; gap: 16px; align-items:flex-start; padding: 16px; border-radius:12px; border:1px solid var(--border); background:rgba(255,255,255,0.015); margin-bottom: 8px; }
+  .ci-icon { font-size:22px; flex-shrink:0; margin-top:2px; }
+  .ci-text h4 { font-size:13px; font-weight:800; margin-bottom:4px; }
+  .ci-text p  { font-size:11px; color:var(--muted); font-family:'Space Mono',monospace; line-height:1.6; }
+
+  /* ─── SLIDERS ─── */
+  .slider-group { margin:13px 0; }
+  .slider-group label { display:flex; justify-content:space-between; align-items:center; font-size:11px; font-family:'Space Mono',monospace; color:var(--muted); margin-bottom:6px; }
+  .slider-group label span { color:var(--accent); font-weight:700; font-size:13px; }
+  input[type=range] { width:100%; height:5px; border-radius:3px; background:var(--border); appearance:none; -webkit-appearance:none; outline:none; cursor:pointer; }
+  input[type=range]::-webkit-slider-thumb { width:16px; height:16px; border-radius:50%; background:var(--accent); -webkit-appearance:none; border:2px solid var(--bg); cursor:pointer; }
+
+  /* ─── BUTTONS ─── */
+  .btn { padding: 16px 32px; border-radius:8px; font-size: 15px; font-family:'Syne',sans-serif; font-weight:800; letter-spacing:1.5px; border:none; cursor:pointer; transition:all 0.2s; text-transform:uppercase; }
+  .btn-primary { background:var(--accent); color:#fff; }
+  .btn-primary:hover { filter:brightness(1.1); transform:translateY(-2px); box-shadow:var(--glow-red); }
+  .btn-orange { background:var(--accent2); color:#000; }
+  .btn-orange:hover { filter:brightness(1.1); transform:translateY(-2px); box-shadow:var(--glow-orange); }
+  .btn-purple { background:var(--accent3); color:#000; }
+  .btn-purple:hover { filter:brightness(1.1); transform:translateY(-2px); }
+  .btn-secondary { background:transparent; color:var(--accent); border:1px solid var(--accent); }
+  .btn-secondary:hover { background:rgba(255,61,107,0.1); }
+  .btn-ghost { background:transparent; color:var(--muted); border:1px solid var(--border); }
+  .btn-ghost:hover { color:var(--text); border-color:var(--muted); }
+  .btn-row { display:flex; gap:12px; flex-wrap:wrap; margin-top:24px; }
+
+  /* ─── CHIPS ─── */
+  .info-chip { background:var(--bg); border:1px solid var(--border); border-radius:10px; padding:12px; text-align:center; }
+  .ic-val { font-size:19px; font-weight:900; font-family:'Space Mono',monospace; }
+  .ic-lbl { font-size:10px; color:var(--muted); letter-spacing:1px; text-transform:uppercase; margin-top:2px; }
+
+  /* ─── CANVAS ─── */
+  canvas { display:block; border-radius:12px; background:var(--bg); border:1px solid var(--border); }
+
+  /* ─── DANGER ALERT ─── */
+  .danger-alert {
+    padding:16px  24px; border-radius:12px;
+    background:linear-gradient(135deg,rgba(255,61,107,0.15),rgba(255,154,60,0.08));
+    border:1px solid rgba(255,61,107,0.4);
+    font-family:'Space Mono',monospace; font-size:12px; line-height:1.6;
+    animation: alertPulse 3s ease-in-out infinite;
+  }
+  @keyframes alertPulse {
+    0%,100%{ border-color:rgba(255,61,107,0.4); }
+    50%{ border-color:rgba(255,61,107,0.9); box-shadow:0 0 20px rgba(255,61,107,0.3); }
+  }
+
+  /* ─── QUIZ ─── */
+  .quiz-progress { font-size:11px; color:var(--muted); font-family:'Space Mono',monospace; margin-bottom: 16px; }
+  .quiz-question { font-size:16px; font-weight:700; margin-bottom:22px; line-height:1.6; }
+  .quiz-options  { display:grid; gap: 8px; }
+  .quiz-opt { padding:13px  16px; border-radius: 8px; border:1px solid var(--border); background:var(--card); cursor:pointer; font-size:13px; font-family:'Space Mono',monospace; transition:all 0.2s; text-align:left; color:var(--text); }
+  .quiz-opt:hover   { border-color:var(--accent); background:rgba(255,61,107,0.08); }
+  .quiz-opt.correct { border-color:var(--accent4); background:rgba(52,211,153,0.12); color:var(--accent4); }
+  .quiz-opt.wrong   { border-color:var(--accent); background:rgba(255,61,107,0.12); color:var(--accent); }
+  .quiz-opt.disabled{ pointer-events:none; }
+  .quiz-feedback { margin-top: 16px; padding: 16px; border-radius: 8px; font-family:'Space Mono',monospace; font-size:12px; line-height:1.6; display:none; }
+  .quiz-feedback.ok  { display:block; background:rgba(52,211,153,0.08); border:1px solid var(--accent4); color:var(--accent4); }
+  .quiz-feedback.err { display:block; background:rgba(255,61,107,0.08); border:1px solid var(--accent); color:var(--accent); }
+
+  /* ─── BADGES ─── */
+  .badge { display:flex; flex-direction:column; align-items:center; gap:8px; padding:16px  16px; border-radius: 16px; border:1px solid var(--border); background:var(--card); min-width:90px; text-align:center; transition:all 0.3s; }
+  .badge.earned { border-color:var(--gold); box-shadow:0 0 20px rgba(251,191,36,0.2); }
+  .badge .badge-icon { font-size:30px; filter:grayscale(1); transition:0.3s; }
+  .badge.earned .badge-icon { filter:none; }
+  .badge .badge-name { font-size:10px; font-weight:700; letter-spacing:1px; text-transform:uppercase; color:var(--muted); }
+  .badge.earned .badge-name { color:var(--gold); }
+  .badge-grid { display:flex; gap:12px; flex-wrap:wrap; }
+
+  /* ─── SCORE RING ─── */
+  .score-ring { width:160px; height:160px; border-radius:50%; display:flex; flex-direction:column; align-items:center; justify-content:center; background:conic-gradient(var(--accent) 0%, var(--accent) var(--pct,0%), var(--border) var(--pct,0%)); position:relative; margin:0 auto 24px; box-shadow:0 0 60px rgba(255,61,107,0.3); }
+  .score-ring::before { content:''; position:absolute; inset:12px; border-radius:50%; background:var(--card); }
+  .score-ring .sv { position:relative; z-index:1; font-size:36px; font-weight:900; color:var(--accent); font-family:'Space Mono',monospace; }
+  .score-ring .sl { position:relative; z-index:1; font-size:10px; color:var(--muted); letter-spacing:2px; text-transform:uppercase; }
+
+  /* ─── TOAST ─── */
+  #toast { position:fixed; bottom:32px; left:50%; transform:translateX(-50%) translateY(100px); background:var(--accent); color:#fff; padding:12px  32px; border-radius:30px; font-weight:800; font-size:13px; z-index:1000; transition:transform 0.4s cubic-bezier(0.34,1.56,0.64,1); white-space:nowrap; pointer-events:none; }
+  #toast.show { transform:translateX(-50%) translateY(0); }
+
+  /* ─── SHATTER ANIMATION ─── */
+  .shatter-wrap { position:relative; }
+  #shatter-msg { text-align:center; font-family:'Space Mono',monospace; font-size:13px; color:var(--accent); min-height:24px; margin-top:10px; font-weight:700; letter-spacing:2px; }
+
+  /* ─── CHALLENGE ─── */
+  .num-chal input[type=number] { background:var(--bg); border:1px solid var(--border); border-radius:8px; padding: 8px 16px; font-family:'Space Mono',monospace; font-size:15px; color:var(--text); width:100%; margin:8px 0; outline:none; transition:border-color 0.2s; }
+  .num-chal input:focus { border-color:var(--accent); }
+
+  /* ─── METER ─── */
+  .meter-wrap { margin: 8px 0; }
+  .meter-label { display:flex; justify-content:space-between; font-size:11px; font-family:'Space Mono',monospace; color:var(--muted); margin-bottom:5px; }
+  .meter-bar { height:8px; border-radius:4px; background:var(--border); overflow:hidden; }
+  .meter-fill { height:100%; border-radius:4px; transition:width 0.5s cubic-bezier(0.4,0,0.2,1); }
+
+  /* ─── RESONANCE METER special ─── */
+  #res-meter-fill { background: linear-gradient(90deg, var(--accent4), var(--accent2), var(--accent)); }
+
+  /* ─── SUMMARY TABLE ─── */
+  .sum-table { width:100%; border-collapse:collapse; font-family:'Space Mono',monospace; font-size:12px; }
+  .sum-table th { padding: 8px  16px; text-align:left; background:rgba(255,61,107,0.08); color:var(--accent); font-size:11px; letter-spacing:2px; text-transform:uppercase; border-bottom:1px solid var(--border); }
+  .sum-table td { padding: 8px  16px; border-bottom:1px solid var(--border); color:var(--text); vertical-align:top; line-height:1.6; }
+  .sum-table tr:last-child td { border-bottom:none; }
+  .sum-table td:first-child { color:var(--accent2); font-weight:700; }
+
+  /* ─── NEXT PREVIEW ─── */
+  .module-complete { padding:32px; border-radius: 16px; background:linear-gradient(135deg,rgba(255,61,107,0.1),rgba(192,132,252,0.1)); border:1px solid rgba(255,61,107,0.3); text-align:center; }
+  .module-complete h2 { font-size:28px; font-weight:900; margin-bottom:12px; }
+  .module-complete p { font-size:13px; color:var(--muted); font-family:'Space Mono',monospace; line-height:1.6; margin-bottom:24px; }
+
+  /* highlight helpers */
+  .hg  { color:var(--accent); }
+  .hg2 { color:var(--accent2); }
+  .hg3 { color:var(--accent3); }
+  .hg4 { color:var(--accent4); }
+
+  /* AMPLITUDE EXPLODE */
+  .amp-explode { animation: ampExplode 0.5s ease; }
+  @keyframes ampExplode {
+    0%{ transform:scale(1); }
+    50%{ transform:scale(1.08); color:#fff; }
+    100%{ transform:scale(1); }
+  }
+
+  /* CASE TABS */
+  .case-tabs { display:flex; gap:0; border-bottom:1px solid var(--border); margin-bottom: 24px; }
+  .case-tab { padding: 8px  24px; font-size:11px; font-weight:700; letter-spacing:1px; text-transform:uppercase; cursor:pointer; border-bottom:2px solid transparent; color:var(--muted); transition:0.2s; font-family:'Space Mono',monospace; }
+  .case-tab.active { color:var(--accent); border-bottom-color:var(--accent); }
+  .case-content { display:none; }
+  .case-content.active { display:block; animation:fadeUp 0.3s ease; }
+  /* ─── GLOBAL NAVBAR ─── */
+  .global-nav {
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    background: rgba(10, 10, 18, 0.85);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+    padding: 12px 40px;
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    flex-wrap: wrap;
+  }
+  .global-nav a {
+    color: var(--muted);
+    text-decoration: none;
+    font-family: 'Space Mono', monospace;
+    font-size: 13px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    transition: all 0.3s;
+    padding: 8px 16px;
+    border-radius: 8px;
+    border: 1px solid transparent;
+  }
+  .global-nav a:hover {
+    color: var(--text);
+    background: var(--border);
+  }
+  .global-nav a.active {
+    color: var(--bg);
+    background: var(--accent);
+    box-shadow: 0 0 15px var(--accent);
+  }
+
+  .btn:active { transform: scale(0.96) !important; filter: brightness(0.9); box-shadow: none !important; transition: all 0.1s; }
+</style>
+</head>
+<body>
+
+<!-- GLOBAL NAVBAR -->
+<nav class="global-nav">
+  <a href="index.html">🏠 Inicio</a>
+  <a href="hooke_law_experience.html">1. Ley de Hooke</a>
+  <a href="mas_experience.html">2. MAS</a>
+  <a href="resonancia_experience.html" class="active">3. Resonancia</a>
+</nav>
+
+<div id="toast">🏆 ¡Insignia!</div>
+
+<!-- ─── HEADER ─── -->
+<header class="top-bar">
+  <div class="logo">
+    <div class="logo-icon">💥</div>
+    <div>
+      <div class="logo-meta">ECUACIONES DIFERENCIALES · MÓDULO 3/3</div>
+      <h1>RESONANCIA</h1>
+    </div>
+  </div>
+  <div class="hud">
+    <div class="hud-stat"><div class="val" id="score-display">0</div><div class="lbl">XP</div></div>
+    <div class="hud-stat"><div class="val" id="stars-display" style="font-size:18px;">☆☆☆</div><div class="lbl">Estrellas</div></div>
+    <div class="hud-stat"><div class="val" id="streak-display">0🔥</div><div class="lbl">Racha</div></div>
+  </div>
+  <div class="module-nav">
+    <button class="mod-btn">M1</button>
+    <button class="mod-btn">M2</button>
+    <button class="mod-btn current">M3</button>
+  </div>
+</header>
+
+<main>
+  <header class="section-title">
+    <div class="tag">Módulo 03 · Final</div>
+    <h2>Cuando la Física<br><span>Se</span> <em>Rompe</em></h2>
+    <p>La resonancia es el fenómeno más dramático de las ED: cuando la frecuencia de excitación iguala la natural, la amplitud crece sin límite. Puentes colapsan, cristales se rompen, el universo oscila.</p>
+  </header>
+
+  <!-- STEPS -->
+  <nav class="steps-bar">
+    <div class="step-item active"><div class="step-circle">1</div><div class="step-label">Teoría</div></div>
+    <div class="step-item"><div class="step-circle">2</div><div class="step-label">Casos</div></div>
+    <div class="step-item"><div class="step-circle">3</div><div class="step-label">Simular</div></div>
+    <div class="step-item"><div class="step-circle">4</div><div class="step-label">Destruir</div></div>
+    <div class="step-item"><div class="step-circle">5</div><div class="step-label">Quiz</div></div>
+    <div class="step-item"><div class="step-circle">6</div><div class="step-label">Desafío</div></div>
+    <div class="step-item"><div class="step-circle">7</div><div class="step-label">Logros</div></div>
+  </nav>
+
+  <!-- ══════════ PANEL 0: TEORÍA ══════════ -->
+  <section class="panel active" id="panel-0">
+    <div class="grid2">
+      <article class="card">
+        <div class="card-title">⚡ De la ED Libre a la Forzada</div>
+        <figure class="concept-item">
+          <span class="ci-icon">🔗</span>
+          <div class="ci-text">
+            <h4>La ED del Módulo 2 era homogénea</h4>
+            <p>x'' + ω₀²·x = 0 describe oscilación libre. Ahora agregamos una <span class="hg">fuerza externa periódica</span> F(t) = F₀·cos(ωt).</p>
+          </div>
+        </figure>
+        <figure class="concept-item">
+          <span class="ci-icon">💥</span>
+          <div class="ci-text">
+            <h4>La nueva ED no homogénea</h4>
+            <p>mx'' + bx' + kx = F₀·cos(ωt). Esta es la <span class="hg">ED del oscilador forzado amortiguado</span> — la más importante en ingeniería.</p>
+          </div>
+        </figure>
+        <figure class="concept-item">
+          <span class="ci-icon">🎯</span>
+          <div class="ci-text">
+            <h4>¿Qué es la Resonancia?</h4>
+            <p>Cuando ω → ω₀ (frecuencia externa ≈ frecuencia natural), la <span class="hg2">amplitud de la respuesta crece dramáticamente</span>. Sin amortiguamiento, crece sin límite.</p>
+          </div>
+        </figure>
+        <figure class="concept-item">
+          <span class="ci-icon">🌉</span>
+          <div class="ci-text">
+            <h4>Ejemplos reales</h4>
+            <p>Puente de Tacoma (1940), cristales al cantar, resonancia en circuitos eléctricos (RLC), imagen de resonancia magnética (IRM), torres de comunicación y terremotos.</p>
+          </div>
+        </figure>
+      </article>
+
+      <article class="card">
+        <div class="card-title">📐 Las Ecuaciones Clave</div>
+        <aside class="eq-box red glow-anim">
+          <div class="eq">mx'' + bx' + kx = F₀·cos(ωt)</div>
+          <div class="eq-sub">ED del oscilador forzado amortiguado</div>
+        </aside>
+        <aside class="eq-box orange">
+          <div class="eq">A(ω) = F₀/m / √((ω₀²−ω²)²+(bω/m)²)</div>
+          <div class="eq-sub">Amplitud de estado estacionario (b > 0)</div>
+        </aside>
+        <aside class="eq-box purple">
+          <div class="eq">ω_res = √(ω₀² − b²/2m²)</div>
+          <div class="eq-sub">Frecuencia de resonancia con amortiguamiento</div>
+        </aside>
+        <aside class="eq-box red" style="border-color:rgba(255,61,107,0.6);">
+          <div class="eq">x(t) = (F₀/2mω₀)·t·sin(ω₀t)</div>
+          <div class="eq-sub">Resonancia pura (b=0, ω=ω₀) — amplitud → ∞</div>
+        </aside>
+        <div style="margin-top:16px; padding: 16px; background:rgba(255,61,107,0.06); border-radius: 8px; font-family:'Space Mono',monospace; font-size:11px; color:var(--muted); line-height:1.6;">
+          🔑 <span class="hg">Clave:</span> La solución completa = solución homogénea (transitoria) + solución particular (estado estacionario). A largo plazo domina la particular con amplitud <span class="hg2">A(ω)</span>.
+        </div>
+      </article>
+    </div>
+
+    <article class="card" style="margin-top:24px;">
+      <div class="card-title">🗂️ Los Tres Casos de la ED Forzada</div>
+      <table class="sum-table">
+        <thead><tr><th>Caso</th><th>Condición</th><th>Comportamiento</th><th>Solución Particular</th></tr></thead>
+        <tbody>
+          <tr>
+            <td>Lejos de resonancia</td>
+            <td>ω ≠ ω₀, b = 0</td>
+            <td>Oscilación estable de amplitud constante</td>
+            <td>xₚ = [F₀/m(ω₀²−ω²)]·cos(ωt)</td>
+          </tr>
+          <tr>
+            <td>Resonancia pura</td>
+            <td>ω = ω₀, b = 0</td>
+            <td><span class="hg">Amplitud crece linealmente con t</span></td>
+            <td>xₚ = (F₀/2mω₀)·t·sin(ω₀t)</td>
+          </tr>
+          <tr>
+            <td>Resonancia amortiguada</td>
+            <td>ω ≈ ω_res, b > 0</td>
+            <td>Pico de amplitud finito pero muy grande</td>
+            <td>xₚ = A(ω)·cos(ωt − φ)</td>
+          </tr>
+        </tbody>
+      </table>
+    </article>
+
+    <div class="btn-row">
+      <button class="btn btn-primary" onclick="goPanel(1)">Siguiente: Los 3 Casos →</button>
+    </div>
+  </section>
+
+  <!-- ══════════ PANEL 1: CASOS ══════════ -->
+  <section class="panel" id="panel-1">
+    <article class="card" style="margin-bottom:24px;">
+      <div class="card-title">🔍 Explora los 3 Casos</div>
+      <div class="case-tabs">
+        <div class="case-tab active" onclick="switchCase(0)">① Lejos</div>
+        <div class="case-tab" onclick="switchCase(1)">② Resonancia Pura</div>
+        <div class="case-tab" onclick="switchCase(2)">③ Amortiguada</div>
+      </div>
+
+      <!-- CASO 0 -->
+      <div class="case-content active" id="case-0">
+        <div class="grid2">
+          <div>
+            <figure class="concept-item">
+              <span class="ci-icon">📊</span>
+              <div class="ci-text">
+                <h4>Oscilación fuera de resonancia</h4>
+                <p>Cuando ω ≠ ω₀, el sistema responde a la frecuencia forzada ω con amplitud <span class="hg2">A = F₀ / |m(ω₀²−ω²)|</span>. Cuanto más lejos de ω₀, menor la amplitud.</p>
+              </div>
+            </figure>
+            <aside class="eq-box orange">
+              <div class="eq">xₚ = [F₀/m(ω₀²−ω²)]·cos(ωt)</div>
+              <div class="eq-sub">Solución particular — b=0, ω ≠ ω₀</div>
+            </aside>
+            <div style="padding: 16px;background:rgba(255,154,60,0.06);border-radius: 8px;font-family:'Space Mono',monospace;font-size:11px;color:var(--muted);line-height:1.6;margin-top:12px;">
+              💡 Nótese que si ω &gt; ω₀, la solución particular tiene <span class="hg">signo negativo</span> — el sistema responde en <strong>contrafase</strong> a la fuerza aplicada.
+            </div>
+          </div>
+          <div>
+            <canvas id="case0-canvas" height="220" style="width:100%;"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <!-- CASO 1 -->
+      <div class="case-content" id="case-1">
+        <div class="grid2">
+          <div>
+            <figure class="concept-item">
+              <span class="ci-icon">💥</span>
+              <div class="ci-text">
+                <h4>Resonancia pura — sin amortiguamiento</h4>
+                <p>Cuando ω = ω₀ y b = 0, el denominador del caso anterior es <span class="hg">cero</span> — la solución particular anterior falla. Se aplica <strong>variación de parámetros</strong> y aparece el factor t.</p>
+              </div>
+            </figure>
+            <aside class="eq-box red glow-anim">
+              <div class="eq">xₚ(t) = (F₀/2mω₀)·t·sin(ω₀t)</div>
+              <div class="eq-sub">Amplitud crece sin límite como t → ∞</div>
+            </aside>
+            <div class="danger-alert" style="margin-top:12px;">
+              ⚠️ <span class="hg">PELIGRO FÍSICO:</span> El factor <strong>t</strong> multiplica a sin(ω₀t). La amplitud aumenta linealmente con el tiempo. En la práctica, el material se rompe antes de alcanzar t → ∞.
+            </div>
+          </div>
+          <div>
+            <canvas id="case1-canvas" height="220" style="width:100%;"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <!-- CASO 2 -->
+      <div class="case-content" id="case-2">
+        <div class="grid2">
+          <div>
+            <figure class="concept-item">
+              <span class="ci-icon">📉</span>
+              <div class="ci-text">
+                <h4>Resonancia con amortiguamiento</h4>
+                <p>Con b &gt; 0, la amplitud en ω_res es <span class="hg2">A_max = F₀·m / (b·√(k/m − b²/4m²))</span>. Grande pero finita. El amortiguamiento "domestica" la resonancia.</p>
+              </div>
+            </figure>
+            <aside class="eq-box purple">
+              <div class="eq">ω_res = √(ω₀² − b²/2m²)</div>
+              <div class="eq-sub">La resonancia se desplaza a ω &lt; ω₀</div>
+            </aside>
+            <div style="padding: 16px;background:rgba(192,132,252,0.06);border-radius: 8px;font-family:'Space Mono',monospace;font-size:11px;color:var(--muted);line-height:1.6;margin-top:12px;">
+              💡 A mayor amortiguamiento: (1) el pico baja, (2) se ensancha, (3) se desplaza hacia frecuencias menores. Es el principio de los <span class="hg3">amortiguadores de vibración</span> en ingeniería.
+            </div>
+          </div>
+          <div>
+            <canvas id="case2-canvas" height="220" style="width:100%;"></canvas>
+          </div>
+        </div>
+      </div>
+    </article>
+
+    <div class="btn-row">
+      <button class="btn btn-ghost" onclick="goPanel(0)">← Teoría</button>
+      <button class="btn btn-primary" onclick="goPanel(2)">Siguiente: Simulador →</button>
+    </div>
+  </section>
+
+  <!-- ══════════ PANEL 2: SIMULADOR ══════════ -->
+  <section class="panel" id="panel-2">
+    <div class="grid2">
+      <article class="card">
+        <div class="card-title">🎮 Simulador de Resonancia</div>
+        <canvas id="res-canvas" height="360" style="width:100%;"></canvas>
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap: 8px;margin-top: 16px;">
+          <div class="info-chip"><div class="ic-val hg"  id="r-x">0.00</div><div class="ic-lbl">x(t) m</div></div>
+          <div class="info-chip"><div class="ic-val hg2" id="r-amp">0.00</div><div class="ic-lbl">|x| máx</div></div>
+          <div class="info-chip"><div class="ic-val hg3" id="r-ratio">1.00</div><div class="ic-lbl">ω/ω₀</div></div>
+          <div class="info-chip"><div class="ic-val hg4" id="r-t">0.00</div><div class="ic-lbl">t (s)</div></div>
+        </div>
+      </article>
+
+      <article class="card">
+        <div class="card-title">🎚️ Controles</div>
+        <div class="slider-group">
+          <label>k (N/m) <span id="r-k-val">25</span></label>
+          <input type="range" id="r-k" min="5" max="100" value="25" oninput="updateRes()">
+        </div>
+        <div class="slider-group">
+          <label>m (kg) <span id="r-m-val">1.0</span></label>
+          <input type="range" id="r-m" min="0.5" max="5" step="0.1" value="1" oninput="updateRes()">
+        </div>
+        <div class="slider-group">
+          <label>Amortiguamiento b <span id="r-b-val">0.5</span></label>
+          <input type="range" id="r-b" min="0" max="8" step="0.1" value="0.5" oninput="updateRes()">
+        </div>
+        <div class="slider-group">
+          <label>F₀ (N) <span id="r-f0-val">5.0</span></label>
+          <input type="range" id="r-f0" min="1" max="20" step="0.5" value="5" oninput="updateRes()">
+        </div>
+        <div class="slider-group">
+          <label>ω forzada (rad/s) <span id="r-w-val">5.00</span></label>
+          <input type="range" id="r-w" min="0.5" max="15" step="0.05" value="5" oninput="updateResW(this.value)">
+        </div>
+
+        <aside class="eq-box red" style="margin-top:16px;">
+          <div class="eq" id="r-omega0-eq">ω₀ = 5.00 rad/s</div>
+          <div class="eq-sub" id="r-ratio-eq">ω/ω₀ = 1.00 — ¡RESONANCIA!</div>
+        </aside>
+
+        <div class="meter-wrap" style="margin-top:16px;">
+          <div class="meter-label"><span>Nivel de Resonancia</span><span id="res-pct-lbl">100%</span></div>
+          <div class="meter-bar"><div class="meter-fill" id="res-meter-fill" style="width:100%;"></div></div>
+        </div>
+
+        <div class="btn-row" style="margin-top:16px;">
+          <button class="btn btn-secondary" onclick="resetRes()">Reiniciar</button>
+          <button class="btn btn-primary" onclick="goPanel(3)">¡Ir a Destruir! →</button>
+        </div>
+      </article>
+    </div>
+
+    <!-- Curva de respuesta en frecuencia -->
+    <article class="card" style="margin-top:24px;">
+      <div class="card-title">📈 Curva de Respuesta A(ω) — Función de Transferencia</div>
+      <canvas id="freq-canvas" height="160" style="width:100%;"></canvas>
+      <p style="font-size:10px;color:var(--muted);font-family:'Space Mono',monospace;margin-top:8px;text-align:center;">
+        La línea vertical roja indica la frecuencia ω actual. El pico es la resonancia. Varía ω con el slider para explorar.
+      </p>
+    </article>
+
+    <article class="card" style="margin-top:24px;">
+      <div class="card-title">📉 Señal Temporal x(t)</div>
+      <canvas id="res-time-canvas" height="120" style="width:100%;"></canvas>
+    </article>
+
+    <div class="btn-row">
+      <button class="btn btn-ghost" onclick="goPanel(1)">← Casos</button>
+      <button class="btn btn-orange" onclick="awardSimBadge(); goPanel(3)">Siguiente: Destruir →</button>
+    </div>
+  </section>
+
+  <!-- ══════════ PANEL 3: DESTRUIR ══════════ -->
+  <section class="panel" id="panel-3">
+    <article class="card" style="margin-bottom:24px;">
+      <div class="card-title">💥 MODO DESTRUCCIÓN — Rompe el Cristal</div>
+      <p style="font-size:12px;color:var(--muted);font-family:'Space Mono',monospace;line-height:1.6;margin-bottom:20px;">
+        Un cristal tiene una frecuencia natural ω₀. Ajusta la frecuencia forzada ω para encontrar la resonancia y ¡romperlo! La barra roja muestra qué tan cerca estás. Cuando el cristal se rompe, ganas la insignia 💥 Destructor.
+      </p>
+      <div class="grid2">
+        <div>
+          <canvas id="crystal-canvas" height="320" style="width:100%;cursor:pointer;"></canvas>
+          <div id="shatter-msg">Ajusta ω para encontrar la resonancia...</div>
+        </div>
+        <div>
+          <div class="slider-group">
+            <label>Frecuencia forzada ω (rad/s) <span id="cry-w-val">3.00</span></label>
+            <input type="range" id="cry-w" min="0.5" max="15" step="0.05" value="3" oninput="updateCrystal(this.value)">
+          </div>
+          <div style="padding:16px;background:rgba(255,61,107,0.05);border:1px solid var(--border);border-radius:12px;margin-top:12px;">
+            <div style="font-size:11px;color:var(--muted);font-family:'Space Mono',monospace;margin-bottom:10px;letter-spacing:2px;text-transform:uppercase;">Estado del cristal</div>
+            <div class="meter-wrap">
+              <div class="meter-label"><span>Integridad estructural</span><span id="int-lbl">100%</span></div>
+              <div class="meter-bar"><div class="meter-fill" id="int-fill" style="width:100%;background:var(--accent4);"></div></div>
+            </div>
+            <div class="meter-wrap">
+              <div class="meter-label"><span>Nivel de resonancia</span><span id="cry-res-lbl">0%</span></div>
+              <div class="meter-bar"><div class="meter-fill" id="cry-res-fill" style="width:0%;background:var(--accent);"></div></div>
+            </div>
+          </div>
+          <aside class="eq-box red" style="margin-top: 16px;">
+            <div class="eq" id="cry-w0-eq">ω₀ del cristal = ? rad/s</div>
+            <div class="eq-sub">Encuéntrala experimentalmente</div>
+          </aside>
+          <div style="margin-top: 16px;padding: 16px;background:rgba(255,154,60,0.06);border-radius: 8px;font-family:'Space Mono',monospace;font-size:11px;color:var(--muted);line-height:1.6;">
+            🔬 <span class="hg2">Pista:</span> La ω₀ del cristal está entre <span class="hg">6 y 10 rad/s</span>. Busca dónde la integridad cae más rápido. ¡Cada cristal tiene una frecuencia única!
+          </div>
+          <div class="btn-row" style="margin-top:16px;">
+            <button class="btn btn-secondary" onclick="resetCrystal()">🔄 Nuevo Cristal</button>
+          </div>
+        </div>
+      </div>
+    </article>
+
+    <div class="btn-row">
+      <button class="btn btn-ghost" onclick="goPanel(2)">← Simulador</button>
+      <button class="btn btn-primary" onclick="goPanel(4)">Siguiente: Quiz →</button>
+    </div>
+  </section>
+
+  <!-- ══════════ PANEL 4: QUIZ ══════════ -->
+  <section class="panel" id="panel-4">
+    <div style="max-width:720px;margin:0 auto;">
+      <article class="card">
+        <div class="card-title">🧠 Quiz Final — Resonancia</div>
+        <div class="quiz-progress" id="quiz-prog">Pregunta 1 de 6</div>
+        <div id="quiz-container"></div>
+      </article>
+    </div>
+  </section>
+
+  <!-- ══════════ PANEL 5: DESAFÍO ══════════ -->
+  <section class="panel" id="panel-5">
+    <article class="card" style="margin-bottom:24px;">
+      <div class="card-title">⚡ DESAFÍOS FINALES — Resonancia</div>
+      <p style="font-size:12px;color:var(--muted);font-family:'Space Mono',monospace;line-height:1.6;margin-bottom:22px;">
+        Los problemas más avanzados de la serie. Aplica todo lo aprendido en los 3 módulos.
+      </p>
+      <div id="chal-container"></div>
+    </article>
+    <div class="btn-row">
+      <button class="btn btn-ghost" onclick="goPanel(4)">← Quiz</button>
+      <button class="btn btn-primary" onclick="goPanel(6)">Ver Logros Finales →</button>
+    </div>
+  </section>
+
+  <!-- ══════════ PANEL 6: LOGROS FINALES ══════════ -->
+  <section class="panel" id="panel-6">
+    <div class="grid2" style="margin-bottom:24px;">
+      <article class="card" style="text-align:center;">
+        <div class="card-title" style="text-align:center;">🏆 PUNTAJE MÓDULO 3</div>
+        <div class="score-ring" id="score-ring" style="--pct:0%">
+          <div class="sv" id="final-xp">0</div>
+          <div class="sl">XP</div>
+        </div>
+        <div style="font-size:22px;font-weight:900;margin-bottom:6px;" id="grade-lbl">—</div>
+        <div style="font-size:12px;color:var(--muted);font-family:'Space Mono',monospace;" id="grade-desc">Completa el módulo</div>
+      </article>
+      <article class="card">
+        <div class="card-title">🎖️ INSIGNIAS DEL MÓDULO 3</div>
+        <div class="badge-grid">
+          <div class="badge" id="badge-theory"><div class="badge-icon">⚡</div><div class="badge-name">Teórico</div></div>
+          <div class="badge" id="badge-cases"><div class="badge-icon">🔍</div><div class="badge-name">Casos</div></div>
+          <div class="badge" id="badge-sim"><div class="badge-icon">🎮</div><div class="badge-name">Simulador</div></div>
+          <div class="badge" id="badge-destroy"><div class="badge-icon">💥</div><div class="badge-name">Destructor</div></div>
+          <div class="badge" id="badge-quiz"><div class="badge-icon">🧠</div><div class="badge-name">Quiz Pro</div></div>
+          <div class="badge" id="badge-chal"><div class="badge-icon">🔥</div><div class="badge-name">Desafío</div></div>
+          <div class="badge" id="badge-perfect"><div class="badge-icon">🌟</div><div class="badge-name">Perfecto</div></div>
+          <div class="badge" id="badge-streak"><div class="badge-icon">⚡</div><div class="badge-name">Racha x3</div></div>
+        </div>
+      </article>
+    </div>
+
+    <!-- Resumen de los 3 módulos -->
+    <article class="card" style="margin-bottom:24px;">
+      <div class="card-title">📋 RESUMEN COMPLETO DE LOS 3 MÓDULOS</div>
+      <div class="grid3">
+        <figure class="concept-item" style="flex-direction:column;align-items:center;text-align:center;">
+          <span style="font-size:32px;">🌀</span>
+          <h4 class="hg2">MÓDULO 1</h4>
+          <h4 style="font-size:12px;margin-bottom:6px;">Ley de Hooke</h4>
+          <p>F=−kx → mx''+kx=0<br>ω₀=√(k/m)<br>ED de 2° orden homogénea</p>
+        </figure>
+        <figure class="concept-item" style="flex-direction:column;align-items:center;text-align:center;">
+          <span style="font-size:32px;">〰️</span>
+          <h4 class="hg3">MÓDULO 2</h4>
+          <h4 style="font-size:12px;margin-bottom:6px;">MAS</h4>
+          <p>x(t)=A·cos(ω₀t+φ)<br>A=√(x₀²+v₀²/ω₀²)<br>T=2π/ω₀ (isocrono)</p>
+        </figure>
+        <figure class="concept-item" style="flex-direction:column;align-items:center;text-align:center;">
+          <span style="font-size:32px;">💥</span>
+          <h4 class="hg">MÓDULO 3</h4>
+          <h4 style="font-size:12px;margin-bottom:6px;">Resonancia</h4>
+          <p>mx''+bx'+kx=F₀cos(ωt)<br>ω→ω₀ ⟹ A→∞<br>ED no homogénea</p>
+        </figure>
+      </div>
+    </article>
+
+    <!-- Completion -->
+    <article class="module-complete">
+      <h2>🎓 ¡Serie Completa!</h2>
+      <p>Completaste los 3 módulos de la experiencia de Ecuaciones Diferenciales.<br>
+      Desde la Ley de Hooke hasta la Resonancia, exploraste cómo las ED modelan el mundo físico:<br>
+      fuerzas restauradoras, oscilaciones, amplitudes infinitas y colapsos estructurales.</p>
+      <div class="btn-row" style="justify-content:center;">
+        <button class="btn btn-primary" onclick="restartModule()">🔄 Reiniciar Módulo 3</button>
+        <button class="btn btn-orange" onclick="showFinalCelebration()">🎆 Celebrar</button>
+      </div>
+    </article>
+  </section>
+</main>
+
+<script>
+// ════════════════════════════════════════
+// STATE
+// ════════════════════════════════════════
+let xp=0, streak=0, currentPanel=0;
+let badges={theory:false,cases:false,sim:false,destroy:false,quiz:false,chal:false,perfect:false,streak:false};
+let quizIdx=0, quizCorrect=0, chalIdx=0;
+
+// Resonance simulator state
+let resK=25, resM=1, resB=0.5, resF0=5, resW=5;
+let resPos=0, resVel=0, resTime=0, resMaxAmp=0;
+let resHistory=[], resAnimId=null, resLastT=null;
+
+// Crystal game state
+let crystalW0=7+Math.random()*3; // hidden between 6-10
+let crystalIntegrity=100, crystalShattered=false;
+let crystalW=3, crystalAmp=0;
+let crystalAnimId=null, crystalPos=0, crystalVel=0, crystalTime=0;
+let crystalLastT=null;
+let crystalParticles=[];
+
+// ════════════════════════════════════════
+// UI HELPERS
+// ════════════════════════════════════════
+function addXP(n){ xp+=n; document.getElementById('score-display').textContent=xp; if(xp>=500)setStars(3); else if(xp>=250)setStars(2); else if(xp>=70)setStars(1); }
+function setStars(n){ document.getElementById('stars-display').textContent=['☆☆☆','★☆☆','★★☆','★★★'][n]; }
+function addStreak(){ streak++; document.getElementById('streak-display').textContent=streak+'🔥'; if(streak>=3&&!badges.streak) awardBadge('streak','⚡ ¡Racha x3!'); }
+function awardBadge(id,msg){ if(badges[id]) return; badges[id]=true; const el=document.getElementById('badge-'+id); if(el) el.classList.add('earned'); showToast(msg||'🏆 ¡Insignia!'); }
+function showToast(msg){ const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),3000); }
+
+function goPanel(n){
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.getElementById('panel-'+n).classList.add('active');
+  document.querySelectorAll('.step-item').forEach((s,i)=>{ s.classList.remove('active','done'); if(i<n)s.classList.add('done'); if(i===n)s.classList.add('active'); });
+  currentPanel=n;
+  if(n===1){ drawCasesCharts(); if(!badges.cases){awardBadge('cases','🔍 ¡Insignia Casos!');addXP(60);} }
+  if(n===2){ startRes(); }
+  if(n===3){ startCrystal(); }
+  if(n===4){ renderQuiz(); }
+  if(n===5){ renderChallenge(); }
+  if(n===6){ renderScore(); }
+}
+
+// ════════════════════════════════════════
+// CASE TABS
+// ════════════════════════════════════════
+function switchCase(n){
+  document.querySelectorAll('.case-tab').forEach((t,i)=>t.classList.toggle('active',i===n));
+  document.querySelectorAll('.case-content').forEach((c,i)=>c.classList.toggle('active',i===n));
+  drawCasesCharts();
+}
+
+function drawCasesCharts(){
+  drawCase0(); drawCase1(); drawCase2();
+}
+
+function drawCaseCanvas(id, fn, color1, color2){
+  const c=document.getElementById(id); if(!c) return;
+  const W=c.offsetWidth||500, H=220;
+  c.width=W; c.height=H;
+  const ctx=c.getContext('2d');
+  ctx.clearRect(0,0,W,H);
+  const cy=H/2;
+  ctx.strokeStyle='rgba(255,255,255,0.06)'; ctx.lineWidth=1;
+  ctx.beginPath(); ctx.moveTo(0,cy); ctx.lineTo(W,cy); ctx.stroke();
+  const grad=ctx.createLinearGradient(0,0,W,0);
+  grad.addColorStop(0,color1.replace('1)', '0.2)')); grad.addColorStop(0.5,color1); grad.addColorStop(1,color2.replace('1)', '0.5)'));
+  ctx.strokeStyle=grad; ctx.lineWidth=2.2; ctx.beginPath();
+  for(let px=0;px<=W;px++){
+    const t=px/W*20;
+    const y=fn(t)*(H*0.38);
+    px===0?ctx.moveTo(px,cy-y):ctx.lineTo(px,cy-y);
+  }
+  ctx.stroke();
+}
+
+function drawCase0(){ drawCaseCanvas('case0-canvas', t=>Math.cos(3*t)+0.4*Math.cos(5*t), 'rgba(255,154,60,1)','rgba(255,61,107,1)'); }
+function drawCase1(){ drawCaseCanvas('case1-canvas', t=>(t/8)*Math.sin(3*t)*0.6, 'rgba(255,61,107,1)','rgba(255,154,60,1)'); }
+function drawCase2(){
+  drawCaseCanvas('case2-canvas',
+    t => Math.exp(-0.15*t)*Math.cos(3*t) + 0.6*Math.cos(2.8*t+0.3),
+    'rgba(192,132,252,1)','rgba(255,61,107,1)');
+}
+
+// ════════════════════════════════════════
+// RESONANCE SIMULATOR
+// ════════════════════════════════════════
+function updateRes(){
+  resK=+document.getElementById('r-k').value;
+  resM=+document.getElementById('r-m').value;
+  resB=+document.getElementById('r-b').value;
+  resF0=+document.getElementById('r-f0').value;
+  document.getElementById('r-k-val').textContent=resK;
+  document.getElementById('r-m-val').textContent=resM.toFixed(1);
+  document.getElementById('r-b-val').textContent=resB.toFixed(1);
+  document.getElementById('r-f0-val').textContent=resF0.toFixed(1);
+  updateResDisplay(); resetRes();
+}
+
+function updateResW(v){
+  resW=+v;
+  document.getElementById('r-w-val').textContent=(+v).toFixed(2);
+  updateResDisplay();
+}
+
+function updateResDisplay(){
+  const w0=Math.sqrt(resK/resM);
+  const ratio=resW/w0;
+  document.getElementById('r-omega0-eq').textContent='ω₀ = '+w0.toFixed(2)+' rad/s';
+  const label = Math.abs(ratio-1)<0.02 ? '— ¡RESONANCIA!' : ratio<1 ? '— por debajo de resonancia' : '— por encima de resonancia';
+  document.getElementById('r-ratio-eq').textContent='ω/ω₀ = '+ratio.toFixed(2)+' '+label;
+  // resonance meter
+  const resPct=Math.max(0,Math.min(100,100-Math.abs(ratio-1)*200));
+  document.getElementById('res-meter-fill').style.width=resPct+'%';
+  document.getElementById('res-pct-lbl').textContent=Math.round(resPct)+'%';
+  drawFreqCurve();
+}
+
+function resetRes(){ resPos=0.01; resVel=0; resTime=0; resMaxAmp=0; resHistory=[]; }
+
+function startRes(){
+  resetRes(); resLastT=null; updateResDisplay();
+  if(resAnimId) cancelAnimationFrame(resAnimId);
+  resLoop(performance.now());
+}
+
+function resLoop(ts){
+  if(!resLastT) resLastT=ts;
+  const dt=Math.min((ts-resLastT)/1000,0.04);
+  resLastT=ts;
+
+  const w0sq=resK/resM;
+  const acc=-(resK/resM)*resPos-(resB/resM)*resVel+(resF0/resM)*Math.cos(resW*resTime);
+  resVel+=acc*dt; resPos+=resVel*dt; resTime+=dt;
+  resMaxAmp=Math.max(resMaxAmp,Math.abs(resPos));
+  resHistory.push(resPos);
+  if(resHistory.length>600) resHistory.shift();
+
+  document.getElementById('r-x').textContent=resPos.toFixed(3);
+  document.getElementById('r-amp').textContent=resMaxAmp.toFixed(3);
+  document.getElementById('r-ratio').textContent=(resW/Math.sqrt(resK/resM)).toFixed(3);
+  document.getElementById('r-t').textContent=resTime.toFixed(2);
+
+  drawResCanvas();
+  drawResTimeCanvas();
+  resAnimId=requestAnimationFrame(resLoop);
+}
+
+function drawResCanvas(){
+  const c=document.getElementById('res-canvas'); if(!c) return;
+  const W=c.offsetWidth, H=360;
+  c.width=W; c.height=H;
+  const ctx=c.getContext('2d');
+  ctx.clearRect(0,0,W,H);
+  const cx=W/2, eqY=H*0.38;
+  const scale=Math.min(80, H*0.3/Math.max(0.01,resMaxAmp));
+  const pxPos=Math.max(-H*0.45,Math.min(H*0.45, resPos*scale));
+  const massY=eqY+pxPos;
+
+  // bg
+  const bg=ctx.createLinearGradient(0,0,0,H);
+  bg.addColorStop(0,'rgba(255,61,107,0.03)'); bg.addColorStop(1,'rgba(255,154,60,0.02)');
+  ctx.fillStyle=bg; ctx.fillRect(0,0,W,H);
+
+  // equilibrium
+  ctx.setLineDash([5,5]); ctx.strokeStyle='rgba(100,60,80,0.5)'; ctx.lineWidth=1;
+  ctx.beginPath(); ctx.moveTo(cx-90,eqY); ctx.lineTo(cx+90,eqY); ctx.stroke();
+  ctx.setLineDash([]);
+
+  // ceiling
+  ctx.fillStyle='rgba(255,61,107,0.12)'; ctx.fillRect(cx-55,0,110,28);
+  ctx.strokeStyle='rgba(255,61,107,0.5)'; ctx.lineWidth=2;
+  ctx.beginPath(); ctx.moveTo(cx-70,28); ctx.lineTo(cx+70,28); ctx.stroke();
+
+  // spring
+  drawResCoil(ctx,cx,28,massY-22,resPos);
+
+  // forced oscillation wave visualization
+  const fY=H*0.85;
+  ctx.strokeStyle='rgba(255,154,60,0.4)'; ctx.lineWidth=1.5; ctx.setLineDash([3,3]);
+  ctx.beginPath();
+  for(let px=0;px<W;px++){
+    const t=resTime-((W-px)/W)*3;
+    const fy=fY-15*Math.cos(resW*t);
+    px===0?ctx.moveTo(px,fy):ctx.lineTo(px,fy);
+  }
+  ctx.stroke(); ctx.setLineDash([]);
+  ctx.fillStyle='rgba(255,154,60,0.5)'; ctx.font='10px Space Mono,monospace'; ctx.textAlign='right';
+  ctx.fillText('F(t)=F₀cos(ωt)',W-8,fY-20);
+
+  // mass
+  const intensity=Math.min(1, Math.abs(resPos)/Math.max(0.5,resMaxAmp));
+  const r=ctx.createRadialGradient(cx,massY,0,cx,massY,26);
+  r.addColorStop(0,`rgba(255,${Math.round(61+intensity*100)},107,0.95)`);
+  r.addColorStop(1,`rgba(255,${Math.round(61+intensity*50)},107,0.6)`);
+  ctx.shadowColor='rgba(255,61,107,0.8)'; ctx.shadowBlur=20+intensity*20;
+  ctx.beginPath(); ctx.arc(cx,massY,24,0,Math.PI*2); ctx.fillStyle=r; ctx.fill();
+  ctx.shadowBlur=0;
+
+  // x label
+  if(Math.abs(resPos)>0.01){
+    ctx.strokeStyle='rgba(255,215,0,0.4)'; ctx.lineWidth=1.2; ctx.setLineDash([3,3]);
+    ctx.beginPath(); ctx.moveTo(cx+58,eqY); ctx.lineTo(cx+58,massY); ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillStyle='#fbbf24'; ctx.font='bold 11px Space Mono,monospace'; ctx.textAlign='left';
+    ctx.fillText(`x=${resPos.toFixed(3)}`,cx+63,(eqY+massY)/2+4);
+  }
+}
+
+function drawResCoil(ctx,x,y1,y2,disp){
+  const coils=12, r=15;
+  const h=Math.max(10,y2-y1);
+  const intensity=Math.min(1,Math.abs(disp)/0.5);
+  ctx.strokeStyle=`rgba(${Math.round(255)},${Math.round(61+intensity*100)},107,0.85)`;
+  ctx.lineWidth=2;
+  ctx.beginPath(); ctx.moveTo(x,y1);
+  const segs=coils*2;
+  for(let i=0;i<=segs;i++){
+    const t=i/segs;
+    ctx.lineTo(x+r*(i%2===0?1:-1), y1+t*h);
+  }
+  ctx.lineTo(x,y2); ctx.stroke();
+}
+
+function drawResTimeCanvas(){
+  const c=document.getElementById('res-time-canvas'); if(!c) return;
+  const W=c.offsetWidth, H=120;
+  c.width=W; c.height=H;
+  const ctx=c.getContext('2d');
+  ctx.clearRect(0,0,W,H);
+  ctx.strokeStyle='rgba(255,255,255,0.05)'; ctx.lineWidth=1;
+  ctx.beginPath(); ctx.moveTo(0,H/2); ctx.lineTo(W,H/2); ctx.stroke();
+  const n=resHistory.length; if(n<2) return;
+  const scale=Math.min(H*0.4/Math.max(0.01,resMaxAmp), H*0.4);
+  const step=W/(n-1);
+  const grad=ctx.createLinearGradient(0,0,W,0);
+  grad.addColorStop(0,'rgba(255,61,107,0.2)');
+  grad.addColorStop(0.5,'rgba(255,61,107,0.9)');
+  grad.addColorStop(1,'rgba(255,154,60,0.9)');
+  ctx.strokeStyle=grad; ctx.lineWidth=2; ctx.beginPath();
+  resHistory.forEach((v,i)=>{ const px=i*step,py=H/2-v*scale; i===0?ctx.moveTo(px,py):ctx.lineTo(px,py); });
+  ctx.stroke();
+}
+
+function drawFreqCurve(){
+  const c=document.getElementById('freq-canvas'); if(!c) return;
+  const W=c.offsetWidth||800, H=160;
+  c.width=W; c.height=H;
+  const ctx=c.getContext('2d');
+  ctx.clearRect(0,0,W,H);
+  const w0=Math.sqrt(resK/resM);
+  const wMax=w0*3;
+
+  ctx.strokeStyle='rgba(255,255,255,0.05)'; ctx.lineWidth=1;
+  ctx.beginPath(); ctx.moveTo(0,H*0.8); ctx.lineTo(W,H*0.8); ctx.stroke();
+
+  // Compute A(w) for b values
+  const bVals=[{b:0.5,col:'rgba(52,211,153,0.8)'},{b:resB,col:'rgba(255,61,107,1)'},{b:4,col:'rgba(192,132,252,0.5)'}];
+  const ampScale=(w,b)=>{
+    const num=resF0/resM;
+    const den=Math.sqrt(Math.pow(w0*w0-w*w,2)+Math.pow(b*w/resM,2));
+    return den<0.001?99:num/den;
+  };
+
+  // Find max for scaling
+  let maxA=0;
+  for(let px=0;px<W;px++){
+    const w=(px/W)*wMax;
+    bVals.forEach(({b})=>{ maxA=Math.max(maxA,Math.min(99,ampScale(w,b))); });
+  }
+
+  bVals.forEach(({b,col})=>{
+    ctx.strokeStyle=col; ctx.lineWidth=b===resB?2.5:1.5; ctx.beginPath();
+    for(let px=0;px<W;px++){
+      const w=(px/W)*wMax;
+      const a=Math.min(99,ampScale(w,b));
+      const py=H*0.8-(a/maxA)*(H*0.72);
+      px===0?ctx.moveTo(px,py):ctx.lineTo(px,py);
+    }
+    ctx.stroke();
+  });
+
+  // Current w line
+  const curPx=(resW/wMax)*W;
+  ctx.strokeStyle='rgba(255,61,107,0.9)'; ctx.lineWidth=1.5; ctx.setLineDash([5,4]);
+  ctx.beginPath(); ctx.moveTo(curPx,0); ctx.lineTo(curPx,H); ctx.stroke();
+  ctx.setLineDash([]);
+
+  // w0 line
+  const w0Px=(w0/wMax)*W;
+  ctx.strokeStyle='rgba(255,215,0,0.4)'; ctx.lineWidth=1; ctx.setLineDash([3,3]);
+  ctx.beginPath(); ctx.moveTo(w0Px,0); ctx.lineTo(w0Px,H); ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.fillStyle='rgba(255,215,0,0.7)'; ctx.font='10px Space Mono,monospace'; ctx.textAlign='center';
+  ctx.fillText('ω₀',w0Px,H-4);
+  ctx.fillStyle='rgba(255,61,107,0.8)';
+  ctx.fillText('ω',curPx,12);
+
+  // Axis label
+  ctx.fillStyle='rgba(255,255,255,0.2)'; ctx.font='10px Space Mono,monospace'; ctx.textAlign='right';
+  ctx.fillText('A(ω)',W-4,14);
+}
+
+function awardSimBadge(){ if(!badges.sim){awardBadge('sim','🎮 ¡Insignia Simulador!');addXP(75);} }
+
+// ════════════════════════════════════════
+// CRYSTAL GAME
+// ════════════════════════════════════════
+function startCrystal(){
+  crystalW=+document.getElementById('cry-w').value||3;
+  crystalPos=0; crystalVel=0.01; crystalTime=0; crystalAmp=0;
+  crystalLastT=null; crystalParticles=[];
+  updateCrystal(crystalW);
+  if(crystalAnimId) cancelAnimationFrame(crystalAnimId);
+  crystalLoop(performance.now());
+}
+
+function resetCrystal(){
+  crystalW0=6+Math.random()*4;
+  crystalIntegrity=100; crystalShattered=false; crystalParticles=[];
+  crystalPos=0; crystalVel=0.01; crystalTime=0; crystalAmp=0;
+  document.getElementById('int-fill').style.width='100%';
+  document.getElementById('int-fill').style.background='var(--accent4)';
+  document.getElementById('cry-res-fill').style.width='0%';
+  document.getElementById('int-lbl').textContent='100%';
+  document.getElementById('cry-res-lbl').textContent='0%';
+  document.getElementById('cry-w0-eq').textContent='ω₀ del cristal = ? rad/s';
+  document.getElementById('shatter-msg').textContent='Ajusta ω para encontrar la resonancia...';
+  updateCrystal(crystalW);
+}
+
+function updateCrystal(v){
+  crystalW=+v;
+  document.getElementById('cry-w-val').textContent=(+v).toFixed(2);
+  const ratio=crystalW/crystalW0;
+  const resPct=Math.max(0,100-Math.abs(ratio-1)*180);
+  document.getElementById('cry-res-fill').style.width=resPct+'%';
+  document.getElementById('cry-res-lbl').textContent=Math.round(resPct)+'%';
+}
+
+function crystalLoop(ts){
+  if(!crystalLastT) crystalLastT=ts;
+  const dt=Math.min((ts-crystalLastT)/1000,0.04);
+  crystalLastT=ts;
+
+  if(!crystalShattered){
+    const b=0.3;
+    const acc=-(crystalW0*crystalW0)*crystalPos-(b)*crystalVel+(8/1)*Math.cos(crystalW*crystalTime);
+    crystalVel+=acc*dt; crystalPos+=crystalVel*dt; crystalTime+=dt;
+    crystalAmp=Math.max(crystalAmp,Math.abs(crystalPos));
+
+    const ratio=crystalW/crystalW0;
+    const dmg=Math.max(0,(1-Math.abs(ratio-1)*3))*crystalAmp*0.3*dt;
+    crystalIntegrity=Math.max(0,crystalIntegrity-dmg);
+
+    const pct=Math.round(crystalIntegrity);
+    document.getElementById('int-lbl').textContent=pct+'%';
+    document.getElementById('int-fill').style.width=pct+'%';
+    const col=pct>60?'var(--accent4)':pct>30?'var(--accent2)':'var(--accent)';
+    document.getElementById('int-fill').style.background=col;
+
+    if(crystalIntegrity<=0 && !crystalShattered){
+      crystalShattered=true;
+      document.getElementById('cry-w0-eq').textContent='ω₀ = '+crystalW0.toFixed(2)+' rad/s ✓';
+      document.getElementById('shatter-msg').textContent='💥 ¡CRISTAL DESTRUIDO! ω₀ = '+crystalW0.toFixed(2)+' rad/s';
+      spawnParticles();
+      if(!badges.destroy){ awardBadge('destroy','💥 ¡Insignia Destructor!'); addXP(150); showToast('💥 ¡Cristal destruido! +150 XP'); }
+    }
+  } else {
+    // update particles
+    crystalParticles.forEach(p=>{ p.x+=p.vx*dt*60; p.y+=p.vy*dt*60; p.vy+=0.3*dt*60; p.life-=dt; p.vx*=0.98; });
+    crystalParticles=crystalParticles.filter(p=>p.life>0);
+  }
+
+  drawCrystal();
+  crystalAnimId=requestAnimationFrame(crystalLoop);
+}
+
+function spawnParticles(){
+  const c=document.getElementById('crystal-canvas');
+  const W=c.offsetWidth||400, H=320;
+  const cx=W/2, cy=H/2;
+  for(let i=0;i<60;i++){
+    const angle=Math.random()*Math.PI*2;
+    const speed=1+Math.random()*5;
+    crystalParticles.push({ x:cx+Math.random()*40-20, y:cy+Math.random()*80-40, vx:Math.cos(angle)*speed, vy:Math.sin(angle)*speed-3, life:0.8+Math.random()*1.2, size:2+Math.random()*5, color:`hsl(${Math.round(Math.random()*60)},100%,70%)` });
+  }
+}
+
+function drawCrystal(){
+  const c=document.getElementById('crystal-canvas'); if(!c) return;
+  const W=c.offsetWidth||400, H=320;
+  c.width=W; c.height=H;
+  const ctx=c.getContext('2d');
+  ctx.clearRect(0,0,W,H);
+  const cx=W/2, cy=H/2-20;
+  const disp=Math.min(50,Math.max(-50,crystalPos*20));
+  const integrity=crystalIntegrity/100;
+
+  if(crystalShattered && crystalParticles.length>0){
+    crystalParticles.forEach(p=>{
+      ctx.globalAlpha=Math.max(0,p.life/1.5);
+      ctx.fillStyle=p.color;
+      ctx.shadowColor=p.color; ctx.shadowBlur=8;
+      ctx.beginPath(); ctx.arc(p.x,p.y,p.size,0,Math.PI*2); ctx.fill();
+    });
+    ctx.globalAlpha=1; ctx.shadowBlur=0;
+    if(crystalParticles.length===0){
+      ctx.fillStyle='rgba(255,61,107,0.3)'; ctx.font='bold 22px Syne,sans-serif'; ctx.textAlign='center';
+      ctx.fillText('💥 DESTRUIDO',cx,cy+10);
+    }
+    return;
+  }
+
+  if(crystalShattered){ ctx.fillStyle='rgba(255,61,107,0.3)'; ctx.font='bold 22px Syne,sans-serif'; ctx.textAlign='center'; ctx.fillText('💥 DESTRUIDO',cx,cy+10); return; }
+
+  // Crystal shape — hexagonal prism
+  const cracks=Math.floor((1-integrity)*8);
+  const shake=Math.min(8,(1-integrity)*12)*Math.sin(crystalTime*crystalW*3);
+
+  ctx.save(); ctx.translate(cx+disp*0.6+shake, cy);
+
+  // Glow
+  const glow=ctx.createRadialGradient(0,0,0,0,0,80);
+  const hue=Math.round(200+integrity*160);
+  glow.addColorStop(0,`hsla(${hue},100%,70%,${0.15+crystalAmp*0.05})`);
+  glow.addColorStop(1,'transparent');
+  ctx.fillStyle=glow; ctx.beginPath(); ctx.arc(0,0,80,0,Math.PI*2); ctx.fill();
+
+  // Crystal body
+  const pts=[];
+  const R=40, rBot=28, hgt=80;
+  for(let i=0;i<6;i++){
+    const a=i*Math.PI/3-Math.PI/2;
+    pts.push({x:R*Math.cos(a),y:-hgt/2+R*0.3*Math.sin(a)*0.3});
+  }
+  ctx.beginPath();
+  ctx.moveTo(0,-hgt/2-20);
+  for(let i=0;i<6;i++){ ctx.lineTo(pts[i].x,pts[i].y); }
+  ctx.closePath();
+  const crystGrad=ctx.createLinearGradient(-R,-hgt/2,R,hgt/2);
+  const alpha=integrity;
+  crystGrad.addColorStop(0,`hsla(${hue},90%,85%,${alpha*0.9})`);
+  crystGrad.addColorStop(0.4,`hsla(${hue},70%,60%,${alpha*0.8})`);
+  crystGrad.addColorStop(1,`hsla(${hue},80%,40%,${alpha*0.7})`);
+  ctx.fillStyle=crystGrad;
+  ctx.shadowColor=`hsla(${hue},100%,70%,0.8)`; ctx.shadowBlur=20+crystalAmp*8;
+  ctx.fill();
+  ctx.strokeStyle=`hsla(${hue},100%,90%,${alpha*0.6})`; ctx.lineWidth=1.5; ctx.stroke();
+  ctx.shadowBlur=0;
+
+  // Cracks
+  for(let i=0;i<cracks;i++){
+    ctx.strokeStyle=`rgba(255,61,107,${0.4+i*0.06})`;
+    ctx.lineWidth=1;
+    const sx=(i%2===0?-1:1)*5*(i+1);
+    const sy=-hgt/4+i*8;
+    ctx.beginPath(); ctx.moveTo(sx,sy); ctx.lineTo(sx+(Math.random()-0.5)*30,sy+15+Math.random()*15); ctx.stroke();
+  }
+
+  // Shimmer
+  ctx.strokeStyle=`rgba(255,255,255,${integrity*0.4})`;
+  ctx.lineWidth=1; ctx.beginPath(); ctx.moveTo(-R*0.3,-hgt/2-15); ctx.lineTo(-R*0.1,hgt/4); ctx.stroke();
+
+  ctx.restore();
+
+  // Oscillation wave at bottom
+  const wy=H-40;
+  ctx.strokeStyle='rgba(255,61,107,0.4)'; ctx.lineWidth=1.5;
+  ctx.beginPath();
+  for(let px=0;px<W;px++){
+    const t=crystalTime-(W-px)/W*3;
+    const y2=wy-Math.min(20, crystalAmp*8)*Math.cos(crystalW*t);
+    px===0?ctx.moveTo(px,y2):ctx.lineTo(px,y2);
+  }
+  ctx.stroke();
+
+  // Integrity label
+  ctx.fillStyle=`hsla(${hue},80%,70%,0.8)`; ctx.font='bold 12px Space Mono,monospace'; ctx.textAlign='center';
+  ctx.fillText(`ω = ${crystalW.toFixed(2)} rad/s`,cx,H-8);
+}
+
+// ════════════════════════════════════════
+// QUIZ
+// ════════════════════════════════════════
+const QUESTIONS=[
+  { q:"La ED del oscilador forzado es mx''+bx'+kx=F₀cos(ωt). ¿Qué tipo de ED es?", opts:["Homogénea de 2° orden","No homogénea de 2° orden","Homogénea de 1° orden","No lineal"], ans:1, exp:"✅ Tiene término independiente F₀cos(ωt) → es no homogénea. El orden es 2 por x''." },
+  { q:"En resonancia pura (b=0, ω=ω₀), la solución particular xₚ contiene:", opts:["Solo cos(ω₀t)","El factor t·sin(ω₀t)","Una exponencial e^{ω₀t}","Una constante"], ans:1, exp:"✅ Como ω=ω₀, la función cos(ω₀t) ya es solución homogénea → se multiplica por t. Resultado: xₚ=(F₀/2mω₀)t·sin(ω₀t)." },
+  { q:"La curva A(ω) vs ω tiene su máximo cuando:", opts:["ω=0","ω→∞","ω≈ω₀ (con b>0: ω_res<ω₀)","ω=2ω₀"], ans:2, exp:"✅ Con amortiguamiento, ω_res=√(ω₀²−b²/2m²) < ω₀. Sin amortiguamiento el pico teórico es en ω=ω₀ con amplitud infinita." },
+  { q:"Al aumentar el amortiguamiento b en el oscilador forzado, el pico de resonancia:", opts:["Sube y se estrecha","Sube y se ensancha","Baja y se ensancha","No cambia"], ans:2, exp:"✅ Mayor amortiguamiento reduce la amplitud máxima (pico más bajo) y lo distribuye en más frecuencias (pico más ancho)." },
+  { q:"¿Por qué colapsó el Puente de Tacoma Narrows en 1940?", opts:["Por exceso de peso vehicular","Por resonancia con el viento — la frecuencia natural del puente igualó la del viento","Por un defecto en los cables","Por un terremoto"], ans:1, exp:"✅ El viento generó vórtices periódicos cerca de la frecuencia natural del puente → resonancia aerodinámica → amplitudes crecientes → colapso." },
+  { q:"La solución completa del oscilador forzado es x=xₕ+xₚ. A largo plazo (t→∞) con b>0:", opts:["Domina xₕ, la particular desaparece","Domina xₚ, la homogénea decae a cero","Ambas persisten con igual amplitud","La solución se vuelve constante"], ans:1, exp:"✅ Con b>0, xₕ contiene e^{−bt/2m}→0 (transitorio). Solo persiste xₚ=A(ω)cos(ωt−φ) (estado estacionario)." }
+];
+
+let qIdx2=0, qAns=false, qCor=0;
+function renderQuiz(){ qIdx2=0; qAns=false; qCor=0; renderQ(); }
+function renderQ(){
+  const cont=document.getElementById('quiz-container');
+  if(qIdx2>=QUESTIONS.length){
+    cont.innerHTML=`<div style="text-align:center;padding:32px 0;"><div style="font-size:48px;margin-bottom: 16px;">${qCor>=5?'🏆':qCor>=4?'⭐':'💪'}</div><div style="font-size:26px;font-weight:900;color:var(--accent);margin-bottom:8px;">${qCor}/${QUESTIONS.length} correctas</div><div style="font-size:12px;color:var(--muted);font-family:'Space Mono',monospace;margin-bottom:24px;">${qCor===6?'¡Maestro de la Resonancia!':qCor>=4?'¡Excelente comprensión!':'Sigue practicando.'}</div><button class="btn btn-primary" onclick="goPanel(5)">Ir al Desafío Final →</button></div>`;
+    if(!badges.quiz&&qCor>=4) awardBadge('quiz','🧠 ¡Insignia Quiz Pro!');
+    if(qCor===6) awardBadge('perfect','🌟 ¡Perfecto!');
+    return;
+  }
+  document.getElementById('quiz-prog').textContent=`Pregunta ${qIdx2+1} de ${QUESTIONS.length}`;
+  const q=QUESTIONS[qIdx2]; qAns=false;
+  cont.innerHTML=`<div class="quiz-question">${q.q}</div><div class="quiz-options">${q.opts.map((o,i)=>`<button class="quiz-opt" id="qo-${i}" onclick="selOpt(${i})">${String.fromCharCode(65+i)}. ${o}</button>`).join('')}</div><div class="quiz-feedback" id="qfb">${q.exp}</div><div style="display:none;margin-top: 16px;" id="qnext"><button class="btn btn-primary" onclick="nextQ()">Siguiente →</button></div>`;
+}
+function selOpt(i){
+  if(qAns) return; qAns=true;
+  const q=QUESTIONS[qIdx2];
+  document.querySelectorAll('.quiz-opt').forEach(o=>o.classList.add('disabled'));
+  const fb=document.getElementById('qfb');
+  if(i===q.ans){ qCor++; document.getElementById('qo-'+i).classList.add('correct'); fb.className='quiz-feedback ok'; addXP(100); addStreak(); showToast('✅ ¡Correcto! +100 XP'); }
+  else { document.getElementById('qo-'+i).classList.add('wrong'); document.getElementById('qo-'+q.ans).classList.add('correct'); fb.className='quiz-feedback err'; streak=0; document.getElementById('streak-display').textContent='0🔥'; }
+  document.getElementById('qnext').style.display='block';
+}
+function nextQ(){ qIdx2++; renderQ(); }
+
+// ════════════════════════════════════════
+// CHALLENGES
+// ════════════════════════════════════════
+const CHALLENGES=[
+  { title:"Amplitud en estado estacionario", desc:"Un sistema tiene m=2 kg, k=50 N/m, b=4 N·s/m, F₀=10 N y ω=3 rad/s. Calcula la amplitud de estado estacionario A(ω) = F₀/m / √((ω₀²−ω²)²+(bω/m)²).", hint:"ω₀=√(50/2)=5. A = (10/2)/√((25−9)²+(4·3/2)²) = 5/√(256+36) = 5/√292", ans:0.293, unit:"m", tol:0.005 },
+  { title:"Frecuencia de resonancia amortiguada", desc:"Con k=100 N/m, m=1 kg, b=4 N·s/m, ¿cuál es la frecuencia de resonancia ω_res = √(ω₀² − b²/2m²)?", hint:"ω₀²=100. b²/2m²=16/2=8. ω_res=√(100−8)=√92", ans:9.592, unit:"rad/s", tol:0.05 },
+  { title:"Resonancia pura — posición en t=π/ω₀", desc:"Sistema: m=1 kg, k=4 N/m (ω₀=2), b=0, F₀=2 N en resonancia. Usa xₚ=(F₀/2mω₀)·t·sin(ω₀t). Calcula x en t=π/2 segundos.", hint:"xₚ=(2/(2·1·2))·(π/2)·sin(2·π/2) = 0.5·(π/2)·sin(π) = 0. ¡El seno vale 0 en t=π/2!", ans:0.0, unit:"m", tol:0.05 },
+  { title:"Energía en resonancia", desc:"En resonancia pura con A(t)=(F₀/2mω₀)·t y k=4 N/m, ¿cuánta energía potencial E=½kA² tiene el sistema en t=5 s? (m=1, ω₀=2, F₀=2 N)", hint:"A(5)=(F₀/2mω₀)·5=(2/(2·1·2))·5=2.5 m. E=½·4·2.5²=½·4·6.25=12.5 J", ans:12.5, unit:"J", tol:0.1 }
+];
+
+let chIdx=0;
+function renderChallenge(){ chIdx=0; renderChalItem(); }
+function renderChalItem(){
+  const cont=document.getElementById('chal-container');
+  if(chIdx>=CHALLENGES.length){
+    cont.innerHTML=`<div style="text-align:center;padding:32px 0;"><div style="font-size:48px;margin-bottom:12px;">🔥</div><div style="font-size:22px;font-weight:900;color:var(--accent4);margin-bottom:8px;">¡Serie completa de desafíos!</div><div style="font-size:12px;color:var(--muted);font-family:'Space Mono',monospace;margin-bottom:22px;">Dominas la ED del oscilador forzado.</div><button class="btn btn-primary" onclick="goPanel(6)">Ver Logros Finales →</button></div>`;
+    if(!badges.chal) awardBadge('chal','🔥 ¡Insignia Desafío Final!');
+    return;
+  }
+  const c=CHALLENGES[chIdx];
+  cont.innerHTML=`
+    <div style="display:flex;gap:12px;align-items:center;margin-bottom: 16px;">
+      <div style="background:var(--accent);color:#fff;font-weight:900;font-family:'Space Mono',monospace;width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;">${chIdx+1}</div>
+      <div style="font-size:15px;font-weight:800;">${c.title}</div>
+      <div style="margin-left:auto;font-size:11px;color:var(--muted);font-family:'Space Mono',monospace;">${chIdx+1}/${CHALLENGES.length}</div>
+    </div>
+    <div style="font-size:12px;color:var(--muted);font-family:'Space Mono',monospace;line-height:1.6;padding:16px;background:rgba(255,61,107,0.04);border:1px solid rgba(255,61,107,0.15);border-radius: 8px;margin-bottom: 16px;">${c.desc}</div>
+    <div class="num-chal">
+      <label style="font-size:11px;color:var(--muted);font-family:'Space Mono',monospace;">Respuesta (${c.unit}):</label>
+      <input type="number" id="ch-inp" step="any" placeholder="Ingresa tu resultado...">
+      <div id="ch-fb" style="display:none;margin-top:10px;padding:12px;border-radius:8px;font-family:'Space Mono',monospace;font-size:12px;"></div>
+      <div class="btn-row" style="margin-top: 16px;">
+        <button class="btn btn-ghost" onclick="showChalHint()">💡 Pista</button>
+        <button class="btn btn-primary" onclick="checkChal()">Verificar ✓</button>
+      </div>
+      <div id="ch-hint" style="display:none;margin-top:12px;padding:12px;background:rgba(255,154,60,0.06);border:1px solid rgba(255,154,60,0.2);border-radius:8px;font-family:'Space Mono',monospace;font-size:12px;color:var(--accent2);">
+        💡 ${c.hint}
+      </div>
+    </div>`;
+}
+function showChalHint(){ document.getElementById('ch-hint').style.display='block'; }
+function checkChal(){
+  const val=parseFloat(document.getElementById('ch-inp').value);
+  const c=CHALLENGES[chIdx];
+  const fb=document.getElementById('ch-fb');
+  if(isNaN(val)){ fb.style.cssText='display:block;background:rgba(255,61,107,0.08);border:1px solid var(--accent);color:var(--accent);padding:12px;border-radius:8px;font-family:Space Mono,monospace;font-size:12px;'; fb.textContent='⚠️ Ingresa un número.'; return; }
+  const ok=Math.abs(val-c.ans)<=c.tol;
+  if(ok){
+    fb.style.cssText='display:block;background:rgba(52,211,153,0.08);border:1px solid var(--accent4);color:var(--accent4);padding:12px;border-radius:8px;font-family:Space Mono,monospace;font-size:12px;';
+    fb.textContent=`✅ ¡Correcto! Resultado: ${c.ans} ${c.unit}. +150 XP`;
+    addXP(150); addStreak(); showToast('✅ ¡Desafío superado! +150 XP');
+    setTimeout(()=>{ chIdx++; renderChalItem(); },1800);
+  } else {
+    fb.style.cssText='display:block;background:rgba(255,61,107,0.08);border:1px solid var(--accent);color:var(--accent);padding:12px;border-radius:8px;font-family:Space Mono,monospace;font-size:12px;';
+    fb.textContent='❌ No exactamente. Revisa el procedimiento. +Pista si necesitas.';
+    streak=0; document.getElementById('streak-display').textContent='0🔥';
+  }
+}
+
+// ════════════════════════════════════════
+// SCORE
+// ════════════════════════════════════════
+function renderScore(){
+  const maxXP=1600;
+  const pct=Math.min(100,Math.round(xp/maxXP*100));
+  document.getElementById('score-ring').style.setProperty('--pct',pct+'%');
+  document.getElementById('final-xp').textContent=xp;
+  let g,d;
+  if(xp>=1200){g='S — Maestro 🏆';d='Dominio absoluto de las ED y Resonancia';}
+  else if(xp>=750){g='A — Experto ⭐';d='Excelente comprensión del oscilador forzado';}
+  else if(xp>=400){g='B — Avanzado 📈';d='Buen manejo de los conceptos de resonancia';}
+  else{g='C — Estudiante 📚';d='Explora todas las secciones para subir de nivel';}
+  document.getElementById('grade-lbl').textContent=g;
+  document.getElementById('grade-desc').textContent=d;
+  Object.keys(badges).forEach(k=>{ if(badges[k]){ const el=document.getElementById('badge-'+k); if(el) el.classList.add('earned'); } });
+}
+
+function restartModule(){
+  xp=0; streak=0; qIdx2=0; chIdx=0; qCor=0;
+  badges={theory:false,cases:false,sim:false,destroy:false,quiz:false,chal:false,perfect:false,streak:false};
+  document.getElementById('score-display').textContent='0';
+  document.getElementById('stars-display').textContent='☆☆☆';
+  document.getElementById('streak-display').textContent='0🔥';
+  document.querySelectorAll('.badge').forEach(b=>b.classList.remove('earned'));
+  resetCrystal();
+  goPanel(0);
+}
+
+function showFinalCelebration(){
+  const emojis=['🎆','🎇','✨','🌟','🏆','💥','🎓','🔥'];
+  for(let i=0;i<12;i++){
+    setTimeout(()=>{ showToast(emojis[Math.floor(Math.random()*emojis.length)]+' ¡Felicidades! Serie ED Completa '+emojis[Math.floor(Math.random()*emojis.length)]); },i*400);
+  }
+}
+
+// ════════════════════════════════════════
+// INIT
+// ════════════════════════════════════════
+setTimeout(()=>{
+  if(!badges.theory){ awardBadge('theory','⚡ ¡Bienvenido al Módulo Final!'); addXP(50); }
+},1500);
+</script>
+</body>
+</html>
