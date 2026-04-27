@@ -1,128 +1,207 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NissiCare - CDSS</title>
+    <meta name="description"
+        content="NissiCare — Plataforma inteligente de soporte clínico para decisiones médicas. Conecta pacientes y profesionales mediante interoperabilidad, CDSS e inteligencia artificial.">
+    <title>NissiCare — CDSS</title>
 
     <link rel="icon" href="./public/logo.png">
-    <!-- Google Fonts Roboto -->
+
+    <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Roboto:wght@400;500;700&display=swap"
+        rel="stylesheet">
+
     <link rel="stylesheet" href="./styles/styles.css">
 </head>
+
 <body>
+
+    <!-- ══ HEADER ══════════════════════════════════════════ -->
     <header class="header">
+
         <div class="header__left">
-             <img src="./public/logo.png" alt="logo con una cruz medica verde y un electrocardiograma en la mitad"
-        width="64px"
-        height="64px">
+            <img src="./public/logo.png" alt="Logo NissiCare: cruz médica verde con electrocardiograma" width="48"
+                height="48">
         </div>
-       
-       <nav class="header__nav">
+
+        <nav class="header__nav" aria-label="Navegación principal">
             <ul>
-                <li><a href="#">Inicio</a></li>
+                <li><a href="#" class="active">Inicio</a></li>
                 <li><a href="#historia-clinica">Historia Clínica</a></li>
                 <li><a href="#cefaleas">Cefaleas</a></li>
-                <li><a href="#op3">op3</a></li>
-                <li><a href="#op4">op4</a></li>
+                <li><a href="#op3">Módulo 3</a></li>
+                <li><a href="#op4">Módulo 4</a></li>
             </ul>
-       </nav>
+        </nav>
 
-       <div class="header__right">
-        <button class="icon__btn">
-           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" />
-        </svg>
-    </button>
-        <button class="icon__btn">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M14.857 17.082a23.848 23.848 0 0 0 5.454-1.31A8.967 8.967 0 0 1 18 9.75V9A6 6 0 0 0 6 9v.75a8.967 8.967 0 0 1-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 0 1-5.714 0m5.714 0a3 3 0 1 1-5.714 0" />
-            </svg>
-        </button>
-        
+        <div class="header__right">
 
-        <button class="icon__btn">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.87.074.04.147.083.22.127.325.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 0 1 1.37.49l1.296 2.247a1.125 1.125 0 0 1-.26 1.431l-1.003.827c-.293.241-.438.613-.43.992a7.723 7.723 0 0 1 0 .255c-.008.378.137.75.43.991l1.004.827c.424.35.534.955.26 1.43l-1.298 2.247a1.125 1.125 0 0 1-1.369.491l-1.217-.456c-.355-.133-.75-.072-1.076.124a6.47 6.47 0 0 1-.22.128c-.331.183-.581.495-.644.869l-.213 1.281c-.09.543-.56.94-1.11.94h-2.594c-.55 0-1.019-.398-1.11-.94l-.213-1.281c-.062-.374-.312-.686-.644-.87a6.52 6.52 0 0 1-.22-.127c-.325-.196-.72-.257-1.076-.124l-1.217.456a1.125 1.125 0 0 1-1.369-.49l-1.297-2.247a1.125 1.125 0 0 1 .26-1.431l1.004-.827c.292-.24.437-.613.43-.991a6.932 6.932 0 0 1 0-.255c.007-.38-.138-.751-.43-.992l-1.004-.827a1.125 1.125 0 0 1-.26-1.43l1.297-2.247a1.125 1.125 0 0 1 1.37-.491l1.216.456c.356.133.751.072 1.076-.124.072-.044.146-.086.22-.128.332-.183.582-.495.644-.869l.214-1.28Z" />
-                <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
-            </svg>
-        </button>
+            <!-- Perfil -->
+            <button class="icon__btn" id="btn-perfil" aria-label="Perfil de usuario">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                    stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round"
+                        d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" />
+                </svg>
+            </button>
 
+            <!-- Notificaciones -->
+            <button class="icon__btn" id="btn-notificaciones" aria-label="Notificaciones">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                    stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round"
+                        d="M14.857 17.082a23.848 23.848 0 0 0 5.454-1.31A8.967 8.967 0 0 1 18 9.75V9A6 6 0 0 0 6 9v.75a8.967 8.967 0 0 1-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 0 1-5.714 0m5.714 0a3 3 0 1 1-5.714 0" />
+                </svg>
+            </button>
 
-       </div>
-        
+            <!-- Configuración -->
+            <button class="icon__btn" id="btn-configuracion" aria-label="Configuración">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                    stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round"
+                        d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.87.074.04.147.083.22.127.325.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 0 1 1.37.49l1.296 2.247a1.125 1.125 0 0 1-.26 1.431l-1.003.827c-.293.241-.438.613-.43.992a7.723 7.723 0 0 1 0 .255c-.008.378.137.75.43.991l1.004.827c.424.35.534.955.26 1.43l-1.298 2.247a1.125 1.125 0 0 1-1.369.491l-1.217-.456c-.355-.133-.75-.072-1.076.124a6.47 6.47 0 0 1-.22.128c-.331.183-.581.495-.644.869l-.213 1.281c-.09.543-.56.94-1.11.94h-2.594c-.55 0-1.019-.398-1.11-.94l-.213-1.281c-.062-.374-.312-.686-.644-.87a6.52 6.52 0 0 1-.22-.127c-.325-.196-.72-.257-1.076-.124l-1.217.456a1.125 1.125 0 0 1-1.369-.49l-1.297-2.247a1.125 1.125 0 0 1 .26-1.431l1.004-.827c.292-.24.437-.613.43-.991a6.932 6.932 0 0 1 0-.255c.007-.38-.138-.751-.43-.992l-1.004-.827a1.125 1.125 0 0 1-.26-1.43l1.297-2.247a1.125 1.125 0 0 1 1.37-.491l1.216.456c.356.133.751.072 1.076-.124.072-.044.146-.086.22-.128.332-.183.582-.495.644-.869l.214-1.28Z" />
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+                </svg>
+            </button>
+
+        </div>
     </header>
+
 
     <main>
 
-        <!--HERO SECTION-->
+        <!-- ══ HERO ══════════════════════════════════════════ -->
         <section id="hero" class="section">
-            <h1>Nissi<span style="color:  #329a9a; font-style: italic;">Care</span></h1>
-        <p>Plataforma inteligente de salud que conecta pacientes
-            <br> y profesionales mediante interoperabilidad, soporte clínico e inteligencia artificial.</p>
+            <div class="hero__badge">
+                <span class="pulse-dot" aria-hidden="true"></span>
+                Sistema activo
+            </div>
+            <h1>Nissi<span class="brand-accent">Care</span></h1>
+            <p>Plataforma inteligente de salud que conecta pacientes
+                y profesionales mediante interoperabilidad,
+                soporte clínico e inteligencia artificial.</p>
         </section>
 
 
-        
-        <!--HEALTH RECORD SECTION-->
+        <!-- ══ HISTORIA CLÍNICA ══════════════════════════════ -->
         <section id="historia-clinica" class="section">
+
             <div class="section__label">
                 <h2>Historia clínica</h2>
             </div>
-            
+
             <div class="card">
                 <div class="card__header">
                     <p>Datos del paciente</p>
                 </div>
-                <form action="submit" method="POST">
-                    <div class="form__name">
-                        <label for="nombre">Nombre</label>
-                        <input type="text" name="nombre" id="nombre" placeholder="Nombre">
-                    </div>
-                    <div class="form__apellido">
-                        <label for="apellido">Apellidos</label>
-                        <input type="text" name="apellido" id="apellido" placeholder="Apellidos" required>
-                    </div>
 
-                    <div class="form__id">
-                        <label for="id">Número de identificación</label>
-                        <input type="text" name="id" id="id" placeholder="Número de identificación" required>
+                <form id="form-historia" action="submit" method="POST">
 
-                        <label for="id_type">Tipo de identificación</label>
-                        <select id="id_type">
-                            <option value="">Seleccionar</option>
-                            <option value="CC">Cédula de ciudadanía</option>
-                            <option value="CE">Cédula de extranjería</option>
-                            <option value="PA">Pasaporte</option>
-                        </select>
-                    </div>
+                    <div class="form__grid">
+
+                        <!-- Nombre -->
+                        <div class="form__group">
+                            <label for="nombre">Nombre</label>
+                            <input type="text" name="nombre" id="nombre" placeholder="Nombre del paciente"
+                                autocomplete="given-name">
+                        </div>
+
+                        <!-- Apellidos -->
+                        <div class="form__group">
+                            <label for="apellido">Apellidos</label>
+                            <input type="text" name="apellido" id="apellido" placeholder="Apellidos del paciente"
+                                required autocomplete="family-name">
+                        </div>
+
+                        <!-- ID number + tipo -->
+                        <div class="form__group">
+                            <label for="id">Número de identificación</label>
+                            <input type="text" name="id" id="id" placeholder="Número de identificación" required>
+                        </div>
+
+                        <div class="form__group">
+                            <label for="id_type">Tipo de identificación</label>
+                            <select id="id_type" name="id_type">
+                                <option value="">Seleccionar</option>
+                                <option value="CC">Cédula de ciudadanía</option>
+                                <option value="CE">Cédula de extranjería</option>
+                                <option value="PA">Pasaporte</option>
+                            </select>
+                        </div>
+
+                    </div><!-- /form__grid -->
+
+                    <button type="submit" class="btn--primary" id="btn-consultar">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2"
+                            stroke="currentColor" width="16" height="16">
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                                d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
+                        </svg>
+                        Consultar paciente
+                    </button>
+
                 </form>
-                <button type="submit" class="btn">Consultar</button>
+            </div><!-- /card -->
+
+        </section>
+
+
+        <!-- ══ CEFALEAS (SNOOP-10) ════════════════════════════ -->
+        <section id="cefaleas" class="section">
+
+            <div class="section__label">
+                <h2>Cefaleas</h2>
+            </div>
+
+            <div class="card">
+                <div class="card__header">
+                    <p>Evaluación de tensión arterial</p>
+                </div>
+
+                <form id="form-cefaleas">
+                    <div class="form__grid">
+
+                        <!-- PAS -->
+                        <div class="form__group">
+                            <label for="PAS">Presión Sistólica</label>
+                            <div class="form__unit-wrap">
+                                <input type="number" name="PAS" id="PAS" placeholder="120" min="60" max="250">
+                                <span class="form__unit">mmHg</span>
+                            </div>
+                        </div>
+
+                        <!-- PAD -->
+                        <div class="form__group">
+                            <label for="PAD">Presión Diastólica</label>
+                            <div class="form__unit-wrap">
+                                <input type="number" name="PAD" id="PAD" placeholder="80" min="40" max="160">
+                                <span class="form__unit">mmHg</span>
+                            </div>
+                        </div>
+
+                    </div><!-- /form__grid -->
+
+                    <button type="submit" id="btn-tension" class="btn--primary">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2"
+                            stroke="currentColor" width="16" height="16">
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                                d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                        </svg>
+                        Evaluar tensión
+                    </button>
+                </form>
             </div>
         </section>
 
-        <!-- CEFALEAS SECTION -->
-            <section id="cefaleas" class="section">
-
-                <div class="section__label">
-                     <h2>Cefaleas</h2>
-                </div>
-               <div class="card">
-                <form action="submit" method="POST">
-                    <label for="PAS">Presion Sistólica</label>
-                    <input type="text" name ="PAS" placeholder="PAS">
-                    <span>mmHg</span>
-
-                    <label for="PAD">Presion Distólica</label>
-                    <input type="text" name="PAD" placeholder="PAD"> 
-                    <span>mmHg</span>
-                </form>
-                <button type="button" id="btn__tension">Evaluar tensión</button>
-               </div>
-              
-            </section>
     </main>
+
 </body>
+<script src="scripts/cefaleas(SNOOP-10)/sistemicos.js"></script>
+
 </html>

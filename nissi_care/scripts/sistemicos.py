@@ -39,6 +39,7 @@ print(tension(140, 90)) # Expected -> 1
 
 print(tension(180, 100)) # Expected -> 1
 
+
     
 
     
